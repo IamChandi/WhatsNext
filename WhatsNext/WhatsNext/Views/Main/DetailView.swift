@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import CoreLocation
 
 struct DetailView: View {
     let sidebarItem: SidebarItem?
@@ -326,36 +327,36 @@ struct DashboardHeaderView: View {
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
-                // Section 2: Location (Center)
-                HStack(spacing: 4) {
-                    Image(systemName: "location.fill")
-                    ZStack(alignment: .leading) {
-                        // Invisible text to measure width
-                        Text(userLocation.isEmpty ? "Location" : userLocation)
-                            .font(.system(.subheadline, design: .monospaced))
-                            .fontWeight(.medium)
-                            .opacity(0)
-                            .padding(.horizontal, 4)
-                        
-                        TextField("Location", text: $userLocation)
-                            .textFieldStyle(.plain)
-                            .multilineTextAlignment(.leading)
-                            .onSubmit {
-                                storedLocation = userLocation
-                                updateWeather()
-                            }
-                    }
-                    .frame(minWidth: 60)
-                }
-                .font(.system(.subheadline, design: .monospaced))
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .center)
+                Spacer()
                 
-                // Section 3: Weather (Right)
-                HStack(spacing: 4) {
-                    Image(systemName: currentWeather.icon)
-                    Text("\(currentWeather.description) \(currentWeather.temp)°F")
+                // Section 2: Location & Weather (Right)
+                HStack(spacing: 16) {
+                    // Location
+                    HStack(spacing: 4) {
+                        Image(systemName: "location.fill")
+                        ZStack(alignment: .leading) {
+                            Text(userLocation.isEmpty ? "Location" : userLocation)
+                                .font(.system(.subheadline, design: .monospaced))
+                                .fontWeight(.medium)
+                                .opacity(0)
+                                .padding(.horizontal, 4)
+                            
+                            TextField("Location", text: $userLocation)
+                                .textFieldStyle(.plain)
+                                .multilineTextAlignment(.leading)
+                                .onSubmit {
+                                    storedLocation = userLocation
+                                    updateWeather()
+                                }
+                        }
+                        .frame(minWidth: 60)
+                    }
+                    
+                    // Weather
+                    HStack(spacing: 4) {
+                        Image(systemName: currentWeather.icon)
+                        Text("\(currentWeather.description) \(currentWeather.temp)°F")
+                    }
                 }
                 .font(.system(.subheadline, design: .monospaced))
                 .fontWeight(.medium)
@@ -389,53 +390,62 @@ struct DashboardHeaderView: View {
             return
         }
         
-        // Use https for security, but handle TLS/Connection failures
-        let urlString = "https://wttr.in/\(location.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")?format=j1"
-        guard let url = URL(string: urlString) else { return }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let error = error {
-                print("Weather fetch network error: \(error.localizedDescription)")
+        // Step 1: Geocode the location string to lat/long
+        CLGeocoder().geocodeAddressString(location) { placemarks, error in
+            guard let location = placemarks?.first?.location else {
+                if let error = error {
+                    print("Geocoding error: \(error.localizedDescription)")
+                }
                 DispatchQueue.main.async {
-                    // Silent failure to avoid spamming user, keep last known or show placeholder
-                    if currentWeather.description == "Partly Cloudy" && currentWeather.temp == 72 {
-                        currentWeather = .init(description: "Offline", temp: 0, icon: "icloud.slash")
-                    }
+                    currentWeather = .init(description: "Not Found", temp: 0, icon: "location.slash")
                 }
                 return
             }
-
-            guard let data = data else { return }
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                   let currentCondition = (json["current_condition"] as? [[String: Any]])?.first,
-                   let tempFStr = currentCondition["temp_F"] as? String,
-                   let tempF = Int(tempFStr),
-                   let descArr = currentCondition["weatherDesc"] as? [[String: Any]],
-                   let desc = descArr.first?["value"] as? String {
-                    
-                    let weatherCode = currentCondition["weatherCode"] as? String ?? ""
-                    let icon = mapWeatherCodeToIcon(weatherCode)
-                    
-                    DispatchQueue.main.async {
-                        currentWeather = .init(description: desc, temp: tempF, icon: icon)
-                    }
+            
+            let lat = location.coordinate.latitude
+            let lon = location.coordinate.longitude
+            
+            // Step 2: Fetch weather from Open-Meteo
+            let urlString = "https://api.open-meteo.com/v1/forecast?latitude=\(lat)&longitude=\(lon)&current=temperature_2m,weather_code&temperature_unit=fahrenheit"
+            guard let url = URL(string: urlString) else { return }
+            
+            URLSession.shared.dataTask(with: url) { data, response, error in
+                if let error = error {
+                    print("Weather fetch error: \(error.localizedDescription)")
+                    return
                 }
-            } catch {
-                print("Weather fetch parsing error: \(error)")
-            }
-        }.resume()
+                
+                guard let data = data else { return }
+                do {
+                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                       let current = json["current"] as? [String: Any],
+                       let tempF = current["temperature_2m"] as? Double,
+                       let weatherCode = current["weather_code"] as? Int {
+                        
+                        let (desc, icon) = mapWMOToReadable(weatherCode)
+                        
+                        DispatchQueue.main.async {
+                            currentWeather = .init(description: desc, temp: Int(tempF), icon: icon)
+                        }
+                    }
+                } catch {
+                    print("Weather parsing error: \(error)")
+                }
+            }.resume()
+        }
     }
     
-    private func mapWeatherCodeToIcon(_ code: String) -> String {
+    private func mapWMOToReadable(_ code: Int) -> (String, String) {
         switch code {
-        case "113": return "sun.max.fill"
-        case "116": return "cloud.sun.fill"
-        case "119", "122": return "cloud.fill"
-        case "266", "296", "302": return "cloud.rain.fill"
-        case "323", "326", "332", "338": return "snowflake"
-        case "389": return "cloud.bolt.rain.fill"
-        default: return "cloud.fill"
+        case 0: return ("Clear", "sun.max.fill")
+        case 1, 2, 3: return ("Partly Cloudy", "cloud.sun.fill")
+        case 45, 48: return ("Foggy", "cloud.fog.fill")
+        case 51, 53, 55: return ("Drizzle", "cloud.drizzle.fill")
+        case 61, 63, 65: return ("Rainy", "cloud.rain.fill")
+        case 71, 73, 75: return ("Snowy", "snowflake")
+        case 80, 81, 82: return ("Showers", "cloud.heavyrain.fill")
+        case 95, 96, 99: return ("Stormy", "cloud.bolt.rain.fill")
+        default: return ("Cloudy", "cloud.fill")
         }
     }
     
