@@ -317,7 +317,7 @@ struct DashboardHeaderView: View {
         VStack(spacing: 8) {
             HStack {
                 // Section 1: Live Date (Left)
-                HStack(spacing: 6) {
+                HStack(spacing: 4) {
                     Image(systemName: "clock")
                     Text(currentDate.formatted(date: .complete, time: .shortened))
                 }
@@ -327,16 +327,25 @@ struct DashboardHeaderView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
                 // Section 2: Location (Center)
-                HStack(spacing: 6) {
+                HStack(spacing: 4) {
                     Image(systemName: "location.fill")
-                    TextField("Location", text: $userLocation)
-                        .textFieldStyle(.plain)
-                        .frame(width: 140)
-                        .multilineTextAlignment(.center)
-                        .onSubmit {
-                            storedLocation = userLocation
-                            updateWeather()
-                        }
+                    ZStack(alignment: .leading) {
+                        // Invisible text to measure width
+                        Text(userLocation.isEmpty ? "Location" : userLocation)
+                            .font(.system(.subheadline, design: .monospaced))
+                            .fontWeight(.medium)
+                            .opacity(0)
+                            .padding(.horizontal, 4)
+                        
+                        TextField("Location", text: $userLocation)
+                            .textFieldStyle(.plain)
+                            .multilineTextAlignment(.leading)
+                            .onSubmit {
+                                storedLocation = userLocation
+                                updateWeather()
+                            }
+                    }
+                    .frame(minWidth: 60)
                 }
                 .font(.system(.subheadline, design: .monospaced))
                 .fontWeight(.medium)
@@ -344,7 +353,7 @@ struct DashboardHeaderView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 
                 // Section 3: Weather (Right)
-                HStack(spacing: 6) {
+                HStack(spacing: 4) {
                     Image(systemName: currentWeather.icon)
                     Text("\(currentWeather.description) \(currentWeather.temp)°F")
                 }
