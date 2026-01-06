@@ -316,7 +316,7 @@ struct DashboardHeaderView: View {
     
     var body: some View {
         VStack(spacing: 8) {
-            HStack {
+            HStack(alignment: .top) {
                 // Section 1: Live Date (Left)
                 HStack(spacing: 4) {
                     Image(systemName: "clock")
@@ -325,21 +325,20 @@ struct DashboardHeaderView: View {
                 .font(.system(.subheadline, design: .monospaced))
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Spacer()
                 
                 // Section 2: Location & Weather (Right)
-                VStack(alignment: .trailing, spacing: 2) {
+                VStack(alignment: .trailing, spacing: 4) {
                     // Location
                     HStack(spacing: 4) {
                         Image(systemName: "location.fill")
                         ZStack(alignment: .trailing) {
+                            // Invisible text to measure width
                             Text(userLocation.isEmpty ? "Location" : userLocation)
                                 .font(.system(.subheadline, design: .monospaced))
                                 .fontWeight(.medium)
                                 .opacity(0)
-                                .padding(.horizontal, 4)
                             
                             TextField("Location", text: $userLocation)
                                 .textFieldStyle(.plain)
@@ -349,7 +348,6 @@ struct DashboardHeaderView: View {
                                     updateWeather()
                                 }
                         }
-                        .frame(minWidth: 60)
                     }
                     
                     // Weather
@@ -361,7 +359,6 @@ struct DashboardHeaderView: View {
                 .font(.system(.caption, design: .monospaced))
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .padding(.horizontal, 24)
         }

@@ -1,7 +1,7 @@
 Command line invocation:
     /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme WhatsNext -project WhatsNext/WhatsNext.xcodeproj -destination platform=macOS build
 
-2026-01-06 07:03:57.156 xcodebuild[50363:31563407] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-01-06 07:05:25.447 xcodebuild[50803:31568410] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
 --- xcodebuild: WARNING: Using the first of multiple matching destinations:
 { platform:macOS, arch:arm64, id:00008132-000A485121D9801C, name:My Mac }
 { platform:macOS, arch:x86_64, id:00008132-000A485121D9801C, name:My Mac }
@@ -59,14 +59,15 @@ ProcessInfoPlistFile /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext
     cd /Users/chandi/Documents/App1/WhatsNext
     builtin-infoPlistUtility /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Intermediates.noindex/WhatsNext.build/Debug/WhatsNext.build/empty-WhatsNext.plist -producttype com.apple.product-type.application -genpkginfo /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Products/Debug/WhatsNext.app/Contents/PkgInfo -expandbuildsettings -platform macosx -additionalcontentfile /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Intermediates.noindex/WhatsNext.build/Debug/WhatsNext.build/assetcatalog_generated_info.plist -o /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Products/Debug/WhatsNext.app/Contents/Info.plist
 
-SwiftCompile normal arm64 Compiling\ DetailView.swift /Users/chandi/Documents/App1/WhatsNext/WhatsNext/Views/Main/DetailView.swift (in target 'WhatsNext' from project 'WhatsNext')
+SwiftEmitModule normal arm64 Emitting\ module\ for\ WhatsNext (in target 'WhatsNext' from project 'WhatsNext')
 
-SwiftCompile normal arm64 /Users/chandi/Documents/App1/WhatsNext/WhatsNext/Views/Main/DetailView.swift (in target 'WhatsNext' from project 'WhatsNext')
+EmitSwiftModule normal arm64 (in target 'WhatsNext' from project 'WhatsNext')
     cd /Users/chandi/Documents/App1/WhatsNext
     
 
-SwiftEmitModule normal arm64 Emitting\ module\ for\ WhatsNext (in target 'WhatsNext' from project 'WhatsNext')
-EmitSwiftModule normal arm64 (in target 'WhatsNext' from project 'WhatsNext')
+SwiftCompile normal arm64 Compiling\ DetailView.swift /Users/chandi/Documents/App1/WhatsNext/WhatsNext/Views/Main/DetailView.swift (in target 'WhatsNext' from project 'WhatsNext')
+
+SwiftCompile normal arm64 /Users/chandi/Documents/App1/WhatsNext/WhatsNext/Views/Main/DetailView.swift (in target 'WhatsNext' from project 'WhatsNext')
     cd /Users/chandi/Documents/App1/WhatsNext
     
 
@@ -110,8 +111,8 @@ CopySwiftLibs /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgox
 ExtractAppIntentsMetadata (in target 'WhatsNext' from project 'WhatsNext')
     cd /Users/chandi/Documents/App1/WhatsNext
     /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name WhatsNext --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk --xcode-version 17C52 --platform-family macOS --deployment-target 14.0 --bundle-identifier com.whatsnext.app --output /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Products/Debug/WhatsNext.app/Contents/Resources --target-triple arm64-apple-macos14.0 --binary-file /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Products/Debug/WhatsNext.app/Contents/MacOS/WhatsNext --dependency-file /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Intermediates.noindex/WhatsNext.build/Debug/WhatsNext.build/Objects-normal/arm64/WhatsNext_dependency_info.dat --stringsdata-file /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Intermediates.noindex/WhatsNext.build/Debug/WhatsNext.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Intermediates.noindex/WhatsNext.build/Debug/WhatsNext.build/Objects-normal/arm64/WhatsNext.SwiftFileList --metadata-file-list /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Intermediates.noindex/WhatsNext.build/Debug/WhatsNext.build/WhatsNext.DependencyMetadataFileList --static-metadata-file-list /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Intermediates.noindex/WhatsNext.build/Debug/WhatsNext.build/WhatsNext.DependencyStaticMetadataFileList --swift-const-vals-list /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Intermediates.noindex/WhatsNext.build/Debug/WhatsNext.build/Objects-normal/arm64/WhatsNext.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
-2026-01-06 07:03:59.722 appintentsmetadataprocessor[50400:31563773] Starting appintentsmetadataprocessor export
-2026-01-06 07:03:59.723 appintentsmetadataprocessor[50400:31563773] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-01-06 07:05:27.950 appintentsmetadataprocessor[50833:31568747] Starting appintentsmetadataprocessor export
+2026-01-06 07:05:27.951 appintentsmetadataprocessor[50833:31568747] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
 
 CodeSign /Users/chandi/Library/Developer/Xcode/DerivedData/WhatsNext-cyvgoxbbzizmvwdxhozmkzlppjsj/Build/Products/Debug/WhatsNext.app/Contents/MacOS/WhatsNext.debug.dylib (in target 'WhatsNext' from project 'WhatsNext')
     cd /Users/chandi/Documents/App1/WhatsNext
