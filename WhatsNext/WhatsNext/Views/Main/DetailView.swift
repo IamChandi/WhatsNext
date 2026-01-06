@@ -332,7 +332,6 @@ struct DashboardHeaderView: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     // Location
                     HStack(spacing: 4) {
-                        Image(systemName: "location.fill")
                         ZStack(alignment: .trailing) {
                             // Invisible text to measure width
                             Text(userLocation.isEmpty ? "Location" : userLocation)

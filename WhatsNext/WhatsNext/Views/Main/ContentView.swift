@@ -86,7 +86,7 @@ struct QuickEntryField: View {
 
     private var prompt: String {
         switch currentSidebarItem {
-        case .category(let cat): return "Add to \(cat.displayName)..."
+        case .category(let cat): return "What's Next for \(cat.displayName)?"
         default: return "What's next?"
         }
     }
@@ -166,6 +166,10 @@ struct ContentView: View {
         }
         .onAppear {
             columnVisibility = isSidebarPinned ? .all : .detailOnly
+            // Ensure focus is on the entry field on launch
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                NotificationCenter.default.post(name: .focusQuickEntry, object: nil)
+            }
         }
         .toolbar {
 
