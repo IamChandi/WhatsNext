@@ -166,6 +166,11 @@ struct ContentView: View {
         }
         .onAppear {
             columnVisibility = isSidebarPinned ? .all : .detailOnly
+            // Activate window to show blue selection highlight immediately
+            DispatchQueue.main.async {
+                NSApp.activate(ignoringOtherApps: true)
+                NSApp.mainWindow?.makeKeyAndOrderFront(nil)
+            }
             // Ensure focus is on the entry field on launch
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 NotificationCenter.default.post(name: .focusQuickEntry, object: nil)

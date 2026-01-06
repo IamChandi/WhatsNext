@@ -49,29 +49,28 @@ struct SidebarView: View {
                 Section {
                     Label {
                         Text("Morning Briefing")
-                            .fontWeight(.semibold)
-                            .foregroundStyle(Theme.forwardOrange)
+                            .foregroundStyle(Theme.sidebarText)
                     } icon: {
                         Image(systemName: "sun.max.fill")
-                            .foregroundStyle(Theme.forwardOrange)
+                            .foregroundStyle(Theme.sidebarIcon)
                     }
                     .tag(SidebarItem.briefing)
-                    
+                    .listRowBackground(sidebarRowBackground(for: .briefing))
+
                     Button {
                         showingShutDown = true
                     } label: {
                         Label {
                             Text("End of Day")
-                                .fontWeight(.semibold)
-                                .foregroundStyle(Theme.forwardOrange)
+                                .foregroundStyle(Theme.sidebarText)
                         } icon: {
                             Image(systemName: "moon.stars.fill")
-                                .foregroundStyle(Theme.forwardOrange)
+                                .foregroundStyle(Theme.sidebarIcon)
                         }
                     }
                     .buttonStyle(.plain)
+                    .listRowBackground(Color.clear)
                 }
-                .listRowBackground(Color.clear)
 
                 Section("Goals") {
                     ForEach(GoalCategory.allCases) { category in
@@ -80,9 +79,9 @@ struct SidebarView: View {
                             count: countForCategory(category)
                         )
                         .tag(SidebarItem.category(category))
+                        .listRowBackground(sidebarRowBackground(for: .category(category)))
                     }
                 }
-                .listRowBackground(Color.clear)
 
                 Section("Organize") {
                     Label {
@@ -92,6 +91,7 @@ struct SidebarView: View {
                     }
                     .tag(SidebarItem.tags)
                     .badge(tags.count)
+                    .listRowBackground(sidebarRowBackground(for: .tags))
 
                     Label {
                         Text("Archive").foregroundStyle(Theme.sidebarText)
@@ -100,8 +100,8 @@ struct SidebarView: View {
                     }
                     .tag(SidebarItem.archive)
                     .badge(archivedCount)
+                    .listRowBackground(sidebarRowBackground(for: .archive))
                 }
-                .listRowBackground(Color.clear)
 
                 Section("Insights") {
                     Label {
@@ -110,8 +110,8 @@ struct SidebarView: View {
                         Image(systemName: "chart.bar").foregroundStyle(Theme.sidebarIcon)
                     }
                     .tag(SidebarItem.analytics)
+                    .listRowBackground(sidebarRowBackground(for: .analytics))
                 }
-                .listRowBackground(Color.clear)
             }
         }
         .searchable(text: $searchText, placement: .sidebar, prompt: "Search goals...")
@@ -131,6 +131,16 @@ struct SidebarView: View {
     private var archivedCount: Int {
         goals.filter { $0.status == .archived }.count
     }
+
+    @ViewBuilder
+    private func sidebarRowBackground(for item: SidebarItem) -> some View {
+        if selection == item {
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color(red: 60/255, green: 120/255, blue: 200/255))
+        } else {
+            Color.clear
+        }
+    }
 }
 
 struct SidebarCategoryRow: View {
@@ -142,9 +152,8 @@ struct SidebarCategoryRow: View {
             Text(category.shortName)
                 .foregroundStyle(Theme.sidebarText)
         } icon: {
-            // Use Theme orange for accents if desired, or keep category color but ensure visibility
             Image(systemName: category.icon)
-                .foregroundStyle(category.color) // Keeping category color for now, could switch to Theme.forwardOrange
+                .foregroundStyle(Theme.sidebarIcon)
         }
         .badge(count)
     }
@@ -303,7 +312,7 @@ struct ShutDownView: View {
                     }
                     .buttonStyle(.bordered)
                 }
-                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+                .transition(AnyTransition.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             }
         }
     }
