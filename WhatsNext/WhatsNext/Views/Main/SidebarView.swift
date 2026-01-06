@@ -174,6 +174,11 @@ struct ShutDownView: View {
     @State private var step = 0
     @State private var notes = ""
     @State private var isFinished = false
+    @State private var processedGoalIDs = Set<UUID>()
+    
+    private var pendingTriageGoals: [Goal] {
+        activeDailyGoals.filter { !processedGoalIDs.contains($0.id) }
+    }
     
     private var completedTodayCount: Int {
         let calendar = Calendar.current
@@ -198,14 +203,16 @@ struct ShutDownView: View {
             } else if step == 0 {
                 overviewStep
             } else if step == 1 {
-                if activeDailyGoals.isEmpty {
+                if pendingTriageGoals.isEmpty {
                     VStack {
                         Text("All clear!")
                             .font(.title)
                         Text("No daily goals remaining.")
                             .foregroundStyle(.secondary)
                     }
-                    .onAppear { step = 2 } // Auto advance
+                    .onAppear {
+                        withAnimation { step = 2 }
+                    } // Auto advance
                 } else {
                     triageStep
                 }
@@ -255,7 +262,7 @@ struct ShutDownView: View {
             Text("Review Remaining Goals")
                 .font(.headline)
             
-            if let goal = activeDailyGoals.first {
+            if let goal = pendingTriageGoals.first {
                 VStack(spacing: 24) {
                     // Goal Card
                     VStack(alignment: .leading, spacing: 12) {
@@ -296,7 +303,7 @@ struct ShutDownView: View {
                     }
                     .buttonStyle(.bordered)
                 }
-                .transition(.slide)
+                .transition(.asymmetric(insertion: .push(from: .trailing), removal: .leadingEdge))
             }
         }
     }
@@ -342,12 +349,19 @@ struct ShutDownView: View {
     
     private func moveGoal(_ goal: Goal, to category: GoalCategory) {
         withAnimation {
+            processedGoalIDs.insert(goal.id)
             goal.category = category
+            
+            // If moving to tomorrow (Daily), update due date
+            if category == .daily {
+                let calendar = Calendar.current
+                if let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: Date())) {
+                    goal.dueDate = tomorrow
+                }
+            }
+            
             goal.updatedAt = Date()
         }
-        
-        // Advance logic is handled by View update when goal leaves the query
-        // But force step change if needed
     }
     
     private func finishDay() {
