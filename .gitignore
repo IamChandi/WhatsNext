@@ -1,0 +1,30 @@
+# Xcode
+#
+# gitignore contributors: switch to the 
+#
+build/
+DerivedData/
+*.hmap
+*.ipa
+*.xcuserstate
+
+# SwiftPackageManager
+#
+# Modules and utilities
+.build/
+
+# User-specific
+#
+xcuserdata/
+
+# AppIcon components
+WhatsNext/WhatsNext/Resources/Assets.xcassets/AppIcon.appiconset/*.png
+!WhatsNext/WhatsNext/Resources/Assets.xcassets/AppIcon.appiconset/Contents.json
+
+# Build Logs
+build_log.txt
+build_output.txt
+
+# OS X
+#
+.DS_Store
