@@ -316,38 +316,44 @@ struct DashboardHeaderView: View {
     var body: some View {
         VStack(spacing: 8) {
             HStack {
-                // Live Date
-                Label(
-                    currentDate.formatted(date: .complete, time: .shortened),
-                    systemImage: "clock"
-                )
-                .font(.system(.subheadline, design: .monospaced))
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-                
-                Spacer()
-                
-                // Location & Weather
-                HStack(spacing: 16) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "location.fill")
-                        TextField("Location", text: $userLocation)
-                            .textFieldStyle(.plain)
-                            .frame(width: 150)
-                            .multilineTextAlignment(.trailing)
-                            .onSubmit {
-                                storedLocation = userLocation
-                                updateWeather()
-                            }
-                    }
-                    
-                    Label("\(currentWeather.description) \(currentWeather.temp)°F", systemImage: currentWeather.icon)
+                // Section 1: Live Date (Left)
+                HStack(spacing: 6) {
+                    Image(systemName: "clock")
+                    Text(currentDate.formatted(date: .complete, time: .shortened))
                 }
                 .font(.system(.subheadline, design: .monospaced))
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Section 2: Location (Center)
+                HStack(spacing: 6) {
+                    Image(systemName: "location.fill")
+                    TextField("Location", text: $userLocation)
+                        .textFieldStyle(.plain)
+                        .frame(width: 140)
+                        .multilineTextAlignment(.center)
+                        .onSubmit {
+                            storedLocation = userLocation
+                            updateWeather()
+                        }
+                }
+                .font(.system(.subheadline, design: .monospaced))
+                .fontWeight(.medium)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                
+                // Section 3: Weather (Right)
+                HStack(spacing: 6) {
+                    Image(systemName: currentWeather.icon)
+                    Text("\(currentWeather.description) \(currentWeather.temp)°F")
+                }
+                .font(.system(.subheadline, design: .monospaced))
+                .fontWeight(.medium)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 24)
         }
         .padding(.vertical, 8)
         .background(Theme.cardBackground)
