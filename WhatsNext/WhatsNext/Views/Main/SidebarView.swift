@@ -20,80 +20,105 @@ struct SidebarView: View {
     @State private var showingShutDown = false
 
     var body: some View {
-        List(selection: $selection) {
-            Section {
-                Label {
-                    Text("Morning Briefing")
-                        .fontWeight(.semibold)
-                        .foregroundStyle(Theme.forwardOrange)
-                } icon: {
-                    Image(systemName: "sun.max.fill")
-                        .foregroundStyle(Theme.forwardOrange)
-                }
-                .tag(SidebarItem.briefing)
+        VStack(spacing: 0) {
+            // Custom Sidebar Header
+            HStack {
+                Text("What's Next?")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                
+                Spacer()
                 
                 Button {
-                    showingShutDown = true
+                    withAnimation {
+                        isSidebarPinned.toggle()
+                    }
                 } label: {
+                    Image(systemName: isSidebarPinned ? "pin.fill" : "pin.slash")
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+                .buttonStyle(.plain)
+                .help(isSidebarPinned ? "Unpin Sidebar" : "Pin Sidebar")
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.white.opacity(0.1))
+
+            List(selection: $selection) {
+                Section {
                     Label {
-                        Text("End of Day")
+                        Text("Morning Briefing")
                             .fontWeight(.semibold)
                             .foregroundStyle(Theme.forwardOrange)
                     } icon: {
-                        Image(systemName: "moon.stars.fill")
+                        Image(systemName: "sun.max.fill")
                             .foregroundStyle(Theme.forwardOrange)
                     }
+                    .tag(SidebarItem.briefing)
+                    
+                    Button {
+                        showingShutDown = true
+                    } label: {
+                        Label {
+                            Text("End of Day")
+                                .fontWeight(.semibold)
+                                .foregroundStyle(Theme.forwardOrange)
+                        } icon: {
+                            Image(systemName: "moon.stars.fill")
+                                .foregroundStyle(Theme.forwardOrange)
+                        }
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-            }
-            .listRowBackground(Color.clear)
+                .listRowBackground(Color.clear)
 
-            Section("Goals") {
-                ForEach(GoalCategory.allCases) { category in
-                    SidebarCategoryRow(
-                        category: category,
-                        count: countForCategory(category)
-                    )
-                    .tag(SidebarItem.category(category))
+                Section("Goals") {
+                    ForEach(GoalCategory.allCases) { category in
+                        SidebarCategoryRow(
+                            category: category,
+                            count: countForCategory(category)
+                        )
+                        .tag(SidebarItem.category(category))
+                    }
                 }
-            }
-            .listRowBackground(Color.clear)
+                .listRowBackground(Color.clear)
 
-            Section("Organize") {
-                Label {
-                    Text("Tags").foregroundStyle(Theme.sidebarText)
-                } icon: {
-                    Image(systemName: "tag").foregroundStyle(Theme.sidebarIcon)
-                }
-                .tag(SidebarItem.tags)
-                .badge(tags.count)
+                Section("Organize") {
+                    Label {
+                        Text("Tags").foregroundStyle(Theme.sidebarText)
+                    } icon: {
+                        Image(systemName: "tag").foregroundStyle(Theme.sidebarIcon)
+                    }
+                    .tag(SidebarItem.tags)
+                    .badge(tags.count)
 
-                Label {
-                    Text("Archive").foregroundStyle(Theme.sidebarText)
-                } icon: {
-                    Image(systemName: "archivebox").foregroundStyle(Theme.sidebarIcon)
+                    Label {
+                        Text("Archive").foregroundStyle(Theme.sidebarText)
+                    } icon: {
+                        Image(systemName: "archivebox").foregroundStyle(Theme.sidebarIcon)
+                    }
+                    .tag(SidebarItem.archive)
+                    .badge(archivedCount)
                 }
-                .tag(SidebarItem.archive)
-                .badge(archivedCount)
-            }
-            .listRowBackground(Color.clear)
+                .listRowBackground(Color.clear)
 
-            Section("Insights") {
-                Label {
-                    Text("Analytics").foregroundStyle(Theme.sidebarText)
-                } icon: {
-                    Image(systemName: "chart.bar").foregroundStyle(Theme.sidebarIcon)
+                Section("Insights") {
+                    Label {
+                        Text("Analytics").foregroundStyle(Theme.sidebarText)
+                    } icon: {
+                        Image(systemName: "chart.bar").foregroundStyle(Theme.sidebarIcon)
+                    }
+                    .tag(SidebarItem.analytics)
                 }
-                .tag(SidebarItem.analytics)
+                .listRowBackground(Color.clear)
             }
-            .listRowBackground(Color.clear)
         }
         .searchable(text: $searchText, placement: .sidebar, prompt: "Search goals...")
         .listStyle(.sidebar)
         .scrollContentBackground(.hidden)
         .background(Theme.ovalOfficeGradient)
         .frame(minWidth: 200)
-        .navigationTitle("What's Next?")
         .sheet(isPresented: $showingShutDown) {
             ShutDownView()
         }

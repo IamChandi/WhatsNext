@@ -174,15 +174,6 @@ struct ContentView: View {
         .toolbar {
 
             ToolbarItemGroup(placement: .primaryAction) {
-                Button {
-                    withAnimation {
-                        isSidebarPinned.toggle()
-                    }
-                } label: {
-                    Label(isSidebarPinned ? "Unpin Sidebar" : "Pin Sidebar", systemImage: isSidebarPinned ? "pin.fill" : "pin.slash")
-                }
-                .help(isSidebarPinned ? "Unpin Sidebar" : "Pin Sidebar")
-                
                 ViewModePicker(viewMode: $viewMode)
                 
                 Button(action: { showingNewGoalSheet = true }) {
