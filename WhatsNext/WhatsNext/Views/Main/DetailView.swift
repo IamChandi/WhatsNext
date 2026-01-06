@@ -307,7 +307,8 @@ struct WalkModeView: View {
 }
 
 struct DashboardHeaderView: View {
-    @AppStorage("userLocation") private var userLocation: String = "Washington, D.C."
+    @AppStorage("userLocation") private var storedLocation: String = "Washington, D.C."
+    @State private var userLocation: String = ""
     @State private var currentDate = Date()
     @State private var currentWeather: WeatherCondition = .init(description: "Partly Cloudy", temp: 72, icon: "cloud.sun.fill")
     let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
@@ -335,6 +336,7 @@ struct DashboardHeaderView: View {
                             .frame(width: 150)
                             .multilineTextAlignment(.trailing)
                             .onSubmit {
+                                storedLocation = userLocation
                                 updateWeather()
                             }
                     }
@@ -360,24 +362,34 @@ struct DashboardHeaderView: View {
             currentDate = input
         }
         .onAppear {
-            updateWeather()
-        }
-        .onChange(of: userLocation) { _, _ in
+            userLocation = storedLocation
             updateWeather()
         }
     }
     
     private func updateWeather() {
-        let location = userLocation.trimmingCharacters(in: .whitespacesAndNewlines)
+        let location = storedLocation.trimmingCharacters(in: .whitespacesAndNewlines)
         guard location.count > 1 && location != "-" else {
             currentWeather = .init(description: "--", temp: 0, icon: "questionmark")
             return
         }
         
+        // Use https for security, but handle TLS/Connection failures
         let urlString = "https://wttr.in/\(location.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? "")?format=j1"
         guard let url = URL(string: urlString) else { return }
         
-        URLSession.shared.dataTask(with: url) { data, _, _ in
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                print("Weather fetch network error: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    // Silent failure to avoid spamming user, keep last known or show placeholder
+                    if currentWeather.description == "Partly Cloudy" && currentWeather.temp == 72 {
+                        currentWeather = .init(description: "Offline", temp: 0, icon: "icloud.slash")
+                    }
+                }
+                return
+            }
+
             guard let data = data else { return }
             do {
                 if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -395,7 +407,7 @@ struct DashboardHeaderView: View {
                     }
                 }
             } catch {
-                print("Weather fetch error: \(error)")
+                print("Weather fetch parsing error: \(error)")
             }
         }.resume()
     }

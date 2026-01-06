@@ -1,0 +1,7 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme WhatsNext -project WhatsNext/WhatsNext.xcodeproj -destination platform=macOS test
+
+2026-01-06 06:48:47.956 xcodebuild[46962:31517702] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-01-06 06:48:47.959 xcodebuild[46962:31517702] Writing error result bundle to /var/folders/wy/pyqyz8yd5tndtkkfd3vczrnc0000gn/T/ResultBundle_2026-06-01_06-48-0047.xcresult
+xcodebuild: error: Scheme WhatsNext is not currently configured for the test action.
+
