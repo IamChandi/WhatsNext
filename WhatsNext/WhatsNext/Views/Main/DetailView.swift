@@ -330,11 +330,11 @@ struct DashboardHeaderView: View {
                 Spacer()
                 
                 // Section 2: Location & Weather (Right)
-                HStack(spacing: 16) {
+                VStack(alignment: .trailing, spacing: 2) {
                     // Location
                     HStack(spacing: 4) {
                         Image(systemName: "location.fill")
-                        ZStack(alignment: .leading) {
+                        ZStack(alignment: .trailing) {
                             Text(userLocation.isEmpty ? "Location" : userLocation)
                                 .font(.system(.subheadline, design: .monospaced))
                                 .fontWeight(.medium)
@@ -343,7 +343,7 @@ struct DashboardHeaderView: View {
                             
                             TextField("Location", text: $userLocation)
                                 .textFieldStyle(.plain)
-                                .multilineTextAlignment(.leading)
+                                .multilineTextAlignment(.trailing)
                                 .onSubmit {
                                     storedLocation = userLocation
                                     updateWeather()
@@ -358,7 +358,7 @@ struct DashboardHeaderView: View {
                         Text("\(currentWeather.description) \(currentWeather.temp)°F")
                     }
                 }
-                .font(.system(.subheadline, design: .monospaced))
+                .font(.system(.caption, design: .monospaced))
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .trailing)
