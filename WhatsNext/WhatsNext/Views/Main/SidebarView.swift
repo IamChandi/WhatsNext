@@ -303,7 +303,7 @@ struct ShutDownView: View {
                     }
                     .buttonStyle(.bordered)
                 }
-                .transition(.asymmetric(insertion: .push(from: .trailing), removal: .leadingEdge))
+                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
             }
         }
     }
