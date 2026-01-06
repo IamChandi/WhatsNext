@@ -36,41 +36,43 @@ struct GoalListView: View {
     }
 
     var body: some View {
-        List(selection: $selectedGoal) {
-            if pendingGoals.isEmpty && completedGoals.isEmpty {
-                ContentUnavailableView {
-                    Label("No Goals", systemImage: category.icon)
-                } description: {
-                    Text("Add a goal to get started")
-                } actions: {
-                    Button("Add Goal") {
-                        showingNewGoalSheet = true
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
+        ZStack {
+            if goals.isEmpty {
+                EmptyStateView(
+                    icon: category.icon,
+                    title: "No \(category.displayName) Goals",
+                    description: "Add a goal to get started on your tasks for this \(category.displayName.lowercased().replacingOccurrences(of: "this ", with: "")).",
+                    actionTitle: "Add Goal",
+                    action: { showingNewGoalSheet = true }
+                )
+                .transition(.opacity)
             } else {
-                if !pendingGoals.isEmpty {
-                    Section("To Do") {
-                        ForEach(pendingGoals) { goal in
-                            GoalRowView(goal: goal)
-                                .tag(goal)
-                                .draggable(goal.id.uuidString)
+                List(selection: $selectedGoal) {
+                    if !pendingGoals.isEmpty {
+                        Section("To Do") {
+                            ForEach(pendingGoals) { goal in
+                                GoalRowView(goal: goal)
+                                    .tag(goal)
+                                    .draggable(goal.id.uuidString)
+                            }
+                            .onMove(perform: movePendingGoals)
                         }
-                        .onMove(perform: movePendingGoals)
                     }
-                }
 
-                if !completedGoals.isEmpty {
-                    Section("Completed") {
-                        ForEach(completedGoals) { goal in
-                            GoalRowView(goal: goal)
-                                .tag(goal)
+                    if !completedGoals.isEmpty {
+                        Section("Completed") {
+                            ForEach(completedGoals) { goal in
+                                GoalRowView(goal: goal)
+                                    .tag(goal)
+                            }
                         }
                     }
                 }
+                .listStyle(.inset(alternatesRowBackgrounds: true))
+                .transition(.opacity)
             }
         }
-        .listStyle(.inset(alternatesRowBackgrounds: true))
+        .animation(.default, value: goals.isEmpty)
         .navigationTitle(category.displayName)
         .toolbar {
             // ToolbarItem(placement: .primaryAction) {
