@@ -33,7 +33,6 @@ The project follows a modular architecture designed for maintainability and scal
 3. Build and run the `WhatsNext` target.
 
 ---
-Built with <3 by **Chandi Kodthiwada**  
+Built with ❤️ by **Chandi Kodthiwada**  
 [Linkedin](https://www.linkedin.com/in/chandikodthiwada/) | [Github](https://github.com/IamChandi)
 
-*Built with ❤️ for productivity.*
