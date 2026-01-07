@@ -49,6 +49,7 @@ struct SidebarView: View {
                 Section {
                     Label {
                         Text("Morning Briefing")
+                            .font(.body)
                             .foregroundStyle(Theme.sidebarText)
                     } icon: {
                         Image(systemName: "sun.max.fill")
@@ -62,6 +63,7 @@ struct SidebarView: View {
                     } label: {
                         Label {
                             Text("End of Day")
+                                .font(.body)
                                 .foregroundStyle(Theme.sidebarText)
                         } icon: {
                             Image(systemName: "moon.stars.fill")
@@ -72,7 +74,7 @@ struct SidebarView: View {
                     .listRowBackground(Color.clear)
                 }
 
-                Section("Goals") {
+                Section {
                     ForEach(GoalCategory.allCases) { category in
                         SidebarCategoryRow(
                             category: category,
@@ -81,36 +83,88 @@ struct SidebarView: View {
                         .tag(SidebarItem.category(category))
                         .listRowBackground(sidebarRowBackground(for: .category(category)))
                     }
+                } header: {
+                    Text("Goals")
+                        .font(.caption)
+                        .foregroundStyle(Theme.sidebarText.opacity(0.7))
+                        .textCase(nil)
                 }
 
-                Section("Organize") {
-                    Label {
-                        Text("Tags").foregroundStyle(Theme.sidebarText)
-                    } icon: {
-                        Image(systemName: "tag").foregroundStyle(Theme.sidebarIcon)
+                Section {
+                    HStack {
+                        Label {
+                            Text("Tags")
+                                .font(.body)
+                                .foregroundStyle(Theme.sidebarText)
+                        } icon: {
+                            Image(systemName: "tag")
+                                .foregroundStyle(Theme.sidebarIcon)
+                        }
+                        
+                        Spacer()
+                        
+                        if tags.count > 0 {
+                            Text("\(tags.count)")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundStyle(Theme.sidebarText)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Theme.sidebarText.opacity(0.2))
+                                .clipShape(Capsule())
+                        }
                     }
                     .tag(SidebarItem.tags)
-                    .badge(tags.count)
                     .listRowBackground(sidebarRowBackground(for: .tags))
 
-                    Label {
-                        Text("Archive").foregroundStyle(Theme.sidebarText)
-                    } icon: {
-                        Image(systemName: "archivebox").foregroundStyle(Theme.sidebarIcon)
+                    HStack {
+                        Label {
+                            Text("Archive")
+                                .font(.body)
+                                .foregroundStyle(Theme.sidebarText)
+                        } icon: {
+                            Image(systemName: "archivebox")
+                                .foregroundStyle(Theme.sidebarIcon)
+                        }
+                        
+                        Spacer()
+                        
+                        if archivedCount > 0 {
+                            Text("\(archivedCount)")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundStyle(Theme.sidebarText)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Theme.sidebarText.opacity(0.2))
+                                .clipShape(Capsule())
+                        }
                     }
                     .tag(SidebarItem.archive)
-                    .badge(archivedCount)
                     .listRowBackground(sidebarRowBackground(for: .archive))
+                } header: {
+                    Text("Organize")
+                        .font(.caption)
+                        .foregroundStyle(Theme.sidebarText.opacity(0.7))
+                        .textCase(nil)
                 }
 
-                Section("Insights") {
+                Section {
                     Label {
-                        Text("Analytics").foregroundStyle(Theme.sidebarText)
+                        Text("Analytics")
+                            .font(.body)
+                            .foregroundStyle(Theme.sidebarText)
                     } icon: {
-                        Image(systemName: "chart.bar").foregroundStyle(Theme.sidebarIcon)
+                        Image(systemName: "chart.bar")
+                            .foregroundStyle(Theme.sidebarIcon)
                     }
                     .tag(SidebarItem.analytics)
                     .listRowBackground(sidebarRowBackground(for: .analytics))
+                } header: {
+                    Text("Insights")
+                        .font(.caption)
+                        .foregroundStyle(Theme.sidebarText.opacity(0.7))
+                        .textCase(nil)
                 }
             }
         }
@@ -119,6 +173,8 @@ struct SidebarView: View {
         .scrollContentBackground(.hidden)
         .background(Theme.ovalOfficeGradient)
         .frame(minWidth: 200)
+        .tint(Theme.sidebarText)
+        .environment(\.defaultMinListRowHeight, 28)
         .sheet(isPresented: $showingShutDown) {
             ShutDownView()
         }
@@ -148,14 +204,29 @@ struct SidebarCategoryRow: View {
     let count: Int
 
     var body: some View {
-        Label {
-            Text(category.shortName)
-                .foregroundStyle(Theme.sidebarText)
-        } icon: {
-            Image(systemName: category.icon)
-                .foregroundStyle(Theme.sidebarIcon)
+        HStack {
+            Label {
+                Text(category.shortName)
+                    .font(.body)
+                    .foregroundStyle(Theme.sidebarText)
+            } icon: {
+                Image(systemName: category.icon)
+                    .foregroundStyle(Theme.sidebarIcon)
+            }
+            
+            Spacer()
+            
+            if count > 0 {
+                Text("\(count)")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundStyle(Theme.sidebarText)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Theme.sidebarText.opacity(0.2))
+                    .clipShape(Capsule())
+            }
         }
-        .badge(count)
     }
 }
 
