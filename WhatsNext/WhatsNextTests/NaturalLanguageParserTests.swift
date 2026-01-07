@@ -54,4 +54,63 @@ final class NaturalLanguageParserTests: XCTestCase {
         XCTAssertEqual(config.title, "Buy milk")
         XCTAssertEqual(config.priority, .high)
     }
+    
+    func testParseMultipleWhitespace() {
+        let input = "Buy    milk    today"
+        let config = NaturalLanguageParser.parse(input)
+        XCTAssertEqual(config.title, "Buy milk today")
+    }
+    
+    func testParseEmptyString() {
+        let input = ""
+        let config = NaturalLanguageParser.parse(input)
+        XCTAssertEqual(config.title, "")
+        XCTAssertEqual(config.priority, .medium)
+        XCTAssertNil(config.dueDate)
+    }
+    
+    func testParseOnlyPriority() {
+        let input = "!high"
+        let config = NaturalLanguageParser.parse(input)
+        XCTAssertEqual(config.title, "")
+        XCTAssertEqual(config.priority, .high)
+    }
+    
+    func testParseOnlyTomorrow() {
+        let input = "tomorrow"
+        let config = NaturalLanguageParser.parse(input)
+        XCTAssertEqual(config.title, "")
+        XCTAssertNotNil(config.dueDate)
+    }
+    
+    func testParseCaseInsensitivePriority() {
+        let highInputs = ["!HIGH", "!High", "!HIGH Fix bug"]
+        for input in highInputs {
+            let config = NaturalLanguageParser.parse(input)
+            XCTAssertEqual(config.priority, .high, "Failed for input: \(input)")
+        }
+    }
+    
+    func testParseCaseInsensitiveTomorrow() {
+        let inputs = ["Meeting TOMORROW", "Meeting Tomorrow", "Meeting TOMORROW"]
+        for input in inputs {
+            let config = NaturalLanguageParser.parse(input)
+            XCTAssertNotNil(config.dueDate, "Failed for input: \(input)")
+            XCTAssertEqual(config.title, "Meeting")
+        }
+    }
+    
+    func testParsePriorityInMiddle() {
+        let input = "Fix !high bug"
+        let config = NaturalLanguageParser.parse(input)
+        XCTAssertEqual(config.title, "Fix bug")
+        XCTAssertEqual(config.priority, .high)
+    }
+    
+    func testParseMultiplePriorityMarkers() {
+        let input = "!high !high Important task"
+        let config = NaturalLanguageParser.parse(input)
+        // Should still parse correctly even with duplicates
+        XCTAssertEqual(config.priority, .high)
+    }
 }
