@@ -169,30 +169,30 @@ struct KeyboardShortcutsHelp: View {
         VStack(alignment: .leading, spacing: 16) {
             HelpSectionTitle("Keyboard Shortcuts")
             
-            ShortcutCategory(title: "Navigation") {
+            HelpShortcutCategory(title: "Navigation") {
                 ShortcutRow(keys: "⌘⇧1", description: "Move selected goal to Daily")
                 ShortcutRow(keys: "⌘⇧2", description: "Move selected goal to Weekly")
                 ShortcutRow(keys: "⌘⇧3", description: "Move selected goal to Monthly")
                 ShortcutRow(keys: "⌘⇧4", description: "Move selected goal to What's Next?")
             }
             
-            ShortcutCategory(title: "Goals") {
+            HelpShortcutCategory(title: "Goals") {
                 ShortcutRow(keys: "⌘N", description: "Create new goal")
                 ShortcutRow(keys: "⌘⏎", description: "Toggle goal completion")
                 ShortcutRow(keys: "⌘⇧F", description: "Toggle Focus Mode")
             }
             
-            ShortcutCategory(title: "Views") {
+            HelpShortcutCategory(title: "Views") {
                 ShortcutRow(keys: "⌃⌘L", description: "Switch to List view")
                 ShortcutRow(keys: "⌃⌘B", description: "Switch to Board view")
                 ShortcutRow(keys: "⌘F", description: "Search goals")
             }
             
-            ShortcutCategory(title: "Global") {
+            HelpShortcutCategory(title: "Global") {
                 ShortcutRow(keys: "⌘⇧Space", description: "Quick Entry (works from anywhere)")
             }
             
-            ShortcutCategory(title: "Window") {
+            HelpShortcutCategory(title: "Window") {
                 ShortcutRow(keys: "⌘,", description: "Open Settings")
                 ShortcutRow(keys: "⌘W", description: "Close window")
                 ShortcutRow(keys: "⌘Q", description: "Quit app")
@@ -366,6 +366,10 @@ struct TroubleshootingHelp: View {
 struct HelpSectionTitle: View {
     let title: String
     
+    init(_ title: String) {
+        self.title = title
+    }
+    
     var body: some View {
         Text(title)
             .font(.largeTitle)
@@ -376,6 +380,10 @@ struct HelpSectionTitle: View {
 
 struct HelpSubsection: View {
     let title: String
+    
+    init(_ title: String) {
+        self.title = title
+    }
     
     var body: some View {
         Text(title)
@@ -449,7 +457,7 @@ struct FeatureHelpItem: View {
     }
 }
 
-struct ShortcutCategory<Content: View>: View {
+struct HelpShortcutCategory<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content
     
@@ -466,28 +474,6 @@ struct ShortcutCategory<Content: View>: View {
             .padding()
             .background(Theme.cardBackground)
             .cornerRadius(8)
-        }
-    }
-}
-
-struct ShortcutRow: View {
-    let keys: String
-    let description: String
-    
-    var body: some View {
-        HStack {
-            Text(keys)
-                .font(.system(.body, design: .monospaced))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.secondary.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 4))
-                .frame(width: 120, alignment: .leading)
-            
-            Text(description)
-                .foregroundStyle(.secondary)
-            
-            Spacer()
         }
     }
 }

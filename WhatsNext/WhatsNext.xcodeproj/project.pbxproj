@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -40,9 +40,22 @@
 		E01234560031 /* CheckboxToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550031 /* CheckboxToggleStyle.swift */; };
 		E01234560032 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550032 /* EmptyStateView.swift */; };
 		E01234560033 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E01234550033 /* Assets.xcassets */; };
+		E01234560034 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550035 /* HelpView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		44A456992F0EBFD100915D06 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E01234500002 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E01234530001;
+			remoteInfo = WhatsNext;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		44A456902F0EBE1200915D06 /* WhatsNextTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = WhatsNextTests.xctestplan; sourceTree = "<group>"; };
+		44A456952F0EBFD100915D06 /* WhatsNextTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WhatsNextTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E01234540001 /* WhatsNext.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhatsNext.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E01234550001 /* WhatsNextApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNextApp.swift; sourceTree = "<group>"; };
 		E01234550002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -78,9 +91,21 @@
 		E01234550032 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		E01234550033 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E01234550034 /* WhatsNext.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WhatsNext.entitlements; sourceTree = "<group>"; };
+		E01234550035 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		44A456962F0EBFD100915D06 /* WhatsNextTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = WhatsNextTests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		44A456922F0EBFD100915D06 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E01234520001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -94,7 +119,9 @@
 		E01234500001 = {
 			isa = PBXGroup;
 			children = (
+				44A456902F0EBE1200915D06 /* WhatsNextTests.xctestplan */,
 				E01234510001 /* WhatsNext */,
+				44A456962F0EBFD100915D06 /* WhatsNextTests */,
 				E01234510002 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -118,6 +145,7 @@
 			isa = PBXGroup;
 			children = (
 				E01234540001 /* WhatsNext.app */,
+				44A456952F0EBFD100915D06 /* WhatsNextTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -150,6 +178,7 @@
 				E01234510015 /* Tags */,
 				E01234510016 /* MenuBar */,
 				E01234510017 /* Settings */,
+				E01234510018 /* Help */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -268,9 +297,40 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
+		E01234510018 /* Help */ = {
+			isa = PBXGroup;
+			children = (
+				E01234550035 /* HelpView.swift */,
+			);
+			path = Help;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		44A456942F0EBFD100915D06 /* WhatsNextTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 44A4569B2F0EBFD100915D06 /* Build configuration list for PBXNativeTarget "WhatsNextTests" */;
+			buildPhases = (
+				44A456912F0EBFD100915D06 /* Sources */,
+				44A456922F0EBFD100915D06 /* Frameworks */,
+				44A456932F0EBFD100915D06 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				44A4569A2F0EBFD100915D06 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				44A456962F0EBFD100915D06 /* WhatsNextTests */,
+			);
+			name = WhatsNextTests;
+			packageProductDependencies = (
+			);
+			productName = WhatsNextTests;
+			productReference = 44A456952F0EBFD100915D06 /* WhatsNextTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		E01234530001 /* WhatsNext */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E01234580001 /* Build configuration list for PBXNativeTarget "WhatsNext" */;
@@ -295,9 +355,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					44A456942F0EBFD100915D06 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = E01234530001;
+					};
 					E01234530001 = {
 						CreatedOnToolsVersion = 15.0;
 					};
@@ -317,11 +381,19 @@
 			projectRoot = "";
 			targets = (
 				E01234530001 /* WhatsNext */,
+				44A456942F0EBFD100915D06 /* WhatsNextTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		44A456932F0EBFD100915D06 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E01234520002 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -333,6 +405,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		44A456912F0EBFD100915D06 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E01234510100 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -369,12 +448,63 @@
 				E01234560030 /* ToastView.swift in Sources */,
 				E01234560031 /* CheckboxToggleStyle.swift in Sources */,
 				E01234560032 /* EmptyStateView.swift in Sources */,
+				E01234560034 /* HelpView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		44A4569A2F0EBFD100915D06 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E01234530001 /* WhatsNext */;
+			targetProxy = 44A456992F0EBFD100915D06 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		44A4569C2F0EBFD100915D06 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PAM98LWH2G;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = CPK.WhatsNextTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WhatsNext.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WhatsNext";
+			};
+			name = Debug;
+		};
+		44A4569D2F0EBFD100915D06 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PAM98LWH2G;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = CPK.WhatsNextTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WhatsNext.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WhatsNext";
+			};
+			name = Release;
+		};
 		E01234570001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -409,6 +539,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -433,6 +564,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -472,6 +604,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -489,6 +622,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
@@ -502,9 +636,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "What's Next?";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
@@ -530,9 +668,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "What's Next?";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
@@ -552,6 +694,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		44A4569B2F0EBFD100915D06 /* Build configuration list for PBXNativeTarget "WhatsNextTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44A4569C2F0EBFD100915D06 /* Debug */,
+				44A4569D2F0EBFD100915D06 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E01234580001 /* Build configuration list for PBXNativeTarget "WhatsNext" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
