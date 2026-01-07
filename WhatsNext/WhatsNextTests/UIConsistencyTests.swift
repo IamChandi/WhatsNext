@@ -195,10 +195,20 @@ final class UIConsistencyTests: XCTestCase {
     
     func testButtonStyleTypes() {
         // Verify standard button styles are available
-        let borderedProminent = ButtonRole.borderedProminent
-        let bordered = ButtonRole.bordered
+        // Note: .borderedProminent and .bordered are button styles, not ButtonRole
+        // ButtonRole has: .cancel, .destructive, .none
+        // Button styles are applied via .buttonStyle() modifier
+        
+        // Verify ButtonRole enum exists and has expected cases
+        let cancelRole = ButtonRole.cancel
+        let destructiveRole = ButtonRole.destructive
         
         // These are compile-time checks, but we verify the concepts exist
+        XCTAssertNotNil(cancelRole)
+        XCTAssertNotNil(destructiveRole)
+        
+        // Button styles (.borderedProminent, .bordered, .plain) are applied via modifiers
+        // and cannot be directly tested as types, but they exist in SwiftUI
         XCTAssertTrue(true)
     }
     

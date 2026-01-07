@@ -17,13 +17,17 @@ struct NaturalLanguageParser {
         var priority: Priority = .medium
         var dueDate: Date? = nil
         
-        // 1. Priority detection
-        if title.contains("!high") || title.contains("!h") {
+        // 1. Priority detection (case-insensitive)
+        if title.localizedCaseInsensitiveContains("!high") || title.localizedCaseInsensitiveContains("!h") {
             priority = .high
-            title = title.replacingOccurrences(of: "!high", with: "").replacingOccurrences(of: "!h", with: "")
-        } else if title.contains("!low") || title.contains("!l") {
+            // Remove priority markers case-insensitively
+            title = title.replacingOccurrences(of: "!high", with: "", options: .caseInsensitive)
+            title = title.replacingOccurrences(of: "!h", with: "", options: .caseInsensitive)
+        } else if title.localizedCaseInsensitiveContains("!low") || title.localizedCaseInsensitiveContains("!l") {
             priority = .low
-            title = title.replacingOccurrences(of: "!low", with: "").replacingOccurrences(of: "!l", with: "")
+            // Remove priority markers case-insensitively
+            title = title.replacingOccurrences(of: "!low", with: "", options: .caseInsensitive)
+            title = title.replacingOccurrences(of: "!l", with: "", options: .caseInsensitive)
         }
         
         // 2. Simple date detection (e.g., "tomorrow")

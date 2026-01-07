@@ -2,6 +2,7 @@ import XCTest
 import UserNotifications
 @testable import WhatsNext
 
+@MainActor
 final class NotificationServiceTests: XCTestCase {
     
     var notificationService: NotificationService!
@@ -28,6 +29,8 @@ final class NotificationServiceTests: XCTestCase {
     
     func testCancelDailyReminders() {
         // Should not crash when canceling reminders
+        // cancelDailyReminders() is main actor-isolated, but it's safe to call synchronously
+        // from a @MainActor context
         notificationService.cancelDailyReminders()
         XCTAssertTrue(true)
     }
@@ -55,6 +58,7 @@ final class NotificationServiceTests: XCTestCase {
     func testCancelAlert() {
         let identifier = "test-alert-identifier"
         // Should not crash when canceling
+        // cancelAlert() is main actor-isolated, safe to call from @MainActor context
         notificationService.cancelAlert(identifier: identifier)
         XCTAssertTrue(true)
     }
@@ -62,6 +66,7 @@ final class NotificationServiceTests: XCTestCase {
     func testCancelAllAlertsForGoal() {
         let goalId = UUID()
         // Should not crash when canceling
+        // cancelAllAlerts() is main actor-isolated, safe to call from @MainActor context
         notificationService.cancelAllAlerts(for: goalId)
         XCTAssertTrue(true)
     }
