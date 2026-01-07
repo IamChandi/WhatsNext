@@ -40,6 +40,7 @@ extension Notification.Name {
     static let moveToCategory = Notification.Name("moveToCategory")
     static let switchViewMode = Notification.Name("switchViewMode")
     static let focusQuickEntry = Notification.Name("focusQuickEntry")
+    static let showHelp = Notification.Name("showHelp")
 }
 
 @main
@@ -150,6 +151,19 @@ struct AppCommands: Commands {
                 NotificationCenter.default.post(name: .switchViewMode, object: ViewMode.kanban)
             }
             .keyboardShortcut("b", modifiers: [.command, .control])
+        }
+        
+        CommandGroup(replacing: .help) {
+            Button("What's Next? Help") {
+                NotificationCenter.default.post(name: .showHelp, object: nil)
+            }
+            .keyboardShortcut("?", modifiers: .command)
+            
+            Divider()
+            
+            Link("GitHub Repository", destination: URL(string: "https://github.com/IamChandi/WhatsNext")!)
+            
+            Link("Report an Issue", destination: URL(string: "https://github.com/IamChandi/WhatsNext/issues")!)
         }
     }
 }

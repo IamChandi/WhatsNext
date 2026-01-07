@@ -127,6 +127,7 @@ struct ContentView: View {
     @AppStorage("isSidebarPinned") private var isSidebarPinned = true
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var showingInspector = false
+    @State private var showingHelp = false
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
@@ -212,6 +213,12 @@ struct ContentView: View {
             if case .category(let cat) = newValue {
                 selectedCategory = cat
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showHelp)) { _ in
+            showingHelp = true
+        }
+        .sheet(isPresented: $showingHelp) {
+            HelpView()
         }
     }
 }

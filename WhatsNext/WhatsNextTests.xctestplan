@@ -30,6 +30,10 @@
   },
   "testTargets" : [
     {
+      "parallelizable" : true,
+      "selectedTags" : {
+        "includeXCTests" : true
+      },
       "target" : {
         "containerPath" : "container:WhatsNext.xcodeproj",
         "identifier" : "WhatsNextTests",

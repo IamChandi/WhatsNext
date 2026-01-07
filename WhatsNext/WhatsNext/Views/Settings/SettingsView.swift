@@ -262,6 +262,8 @@ struct AppearanceTab: View {
 }
 
 struct AboutTab: View {
+    @State private var showingHelp = false
+    
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: "checkmark.circle.fill")
@@ -295,6 +297,16 @@ struct AboutTab: View {
                 .font(.caption)
             }
             .padding(.top, 8)
+            
+            Divider()
+                .padding(.vertical, 8)
+            
+            Button(action: { showingHelp = true }) {
+                Label("View Help Documentation", systemImage: "questionmark.circle.fill")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Theme.presidentialBlue)
 
             Spacer()
 
@@ -304,6 +316,9 @@ struct AboutTab: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .sheet(isPresented: $showingHelp) {
+            HelpView()
+        }
     }
 }
 
