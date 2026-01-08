@@ -44,6 +44,43 @@ struct SidebarView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(Color.white.opacity(0.1))
+            
+            // Custom Search Bar with better visibility
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(Theme.sidebarText.opacity(0.7))
+                    .font(.system(size: 13))
+                
+                ZStack(alignment: .leading) {
+                    if searchText.isEmpty {
+                        Text("Search goals...")
+                            .foregroundStyle(Theme.sidebarText.opacity(0.6))
+                            .font(.system(size: 13))
+                    }
+                    
+                    TextField("", text: $searchText)
+                        .textFieldStyle(.plain)
+                        .foregroundStyle(Theme.sidebarText)
+                        .font(.system(size: 13))
+                }
+                
+                if !searchText.isEmpty {
+                    Button {
+                        searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Theme.sidebarText.opacity(0.6))
+                            .font(.system(size: 12))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.white.opacity(0.15))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
 
             List(selection: $selection) {
                 Section {
@@ -168,12 +205,12 @@ struct SidebarView: View {
                 }
             }
         }
-        .searchable(text: $searchText, placement: .sidebar, prompt: "Search goals...")
         .listStyle(.sidebar)
         .scrollContentBackground(.hidden)
         .background(Theme.ovalOfficeGradient)
         .frame(minWidth: 200)
         .tint(Theme.sidebarText)
+        .foregroundStyle(Theme.sidebarText)
         .environment(\.defaultMinListRowHeight, 28)
         .sheet(isPresented: $showingShutDown) {
             ShutDownView()
