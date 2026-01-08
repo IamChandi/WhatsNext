@@ -56,19 +56,85 @@ struct WhatsNextApp: App {
             RecurrenceRule.self,
             HistoryEntry.self
         ])
-        let modelConfiguration = ModelConfiguration(
+        
+        // Try CloudKit first (since user has paid account)
+        print("🔍 Attempting to create ModelContainer with CloudKit...")
+        let cloudKitConfiguration = ModelConfiguration(
             schema: schema,
-            isStoredInMemoryOnly: false
+            cloudKitDatabase: .automatic
         )
-
+        
         do {
             let container = try ModelContainer(
                 for: schema,
-                configurations: [modelConfiguration]
+                configurations: [cloudKitConfiguration]
             )
+            print("✅ ModelContainer created successfully with CloudKit")
             return container
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+        } catch let cloudKitError {
+            print("❌ CloudKit failed: \(cloudKitError)")
+            print("⚠️ Falling back to local storage...")
+            
+            // Fallback to local storage if CloudKit fails
+            let fallbackConfiguration = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false
+            )
+            
+            do {
+                let container = try ModelContainer(
+                    for: schema,
+                    configurations: [fallbackConfiguration]
+                )
+                print("✅ ModelContainer created successfully with local storage")
+                return container
+            } catch let localError {
+            print("❌ Local storage failed: \(localError)")
+            if let nsError = localError as NSError? {
+                print("   Domain: \(nsError.domain), Code: \(nsError.code)")
+                print("   UserInfo: \(nsError.userInfo)")
+                if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError {
+                    print("   Underlying error: \(underlyingError)")
+                    print("   Underlying domain: \(underlyingError.domain), code: \(underlyingError.code)")
+                    print("   Underlying userInfo: \(underlyingError.userInfo)")
+                }
+            }
+            
+            // Try in-memory as last resort
+            print("⚠️ Attempting in-memory fallback...")
+            do {
+                let inMemoryConfiguration = ModelConfiguration(
+                    schema: schema,
+                    isStoredInMemoryOnly: true
+                )
+                let inMemoryContainer = try ModelContainer(
+                    for: schema,
+                    configurations: [inMemoryConfiguration]
+                )
+                print("✅ ModelContainer created with in-memory storage (data will not persist)")
+                return inMemoryContainer
+            } catch let inMemoryError {
+                print("❌ In-memory also failed: \(inMemoryError)")
+                if let nsError = inMemoryError as NSError? {
+                    print("   Domain: \(nsError.domain), Code: \(nsError.code)")
+                    print("   UserInfo: \(nsError.userInfo)")
+                }
+                
+                // Print all diagnostic information before crashing
+                print("\n" + String(repeating: "=", count: 60))
+                print("❌ CRITICAL: All storage options failed!")
+                print(String(repeating: "=", count: 60))
+                print("\nPlease check the console output above to see which model failed.")
+                print("Look for lines starting with '❌' to identify the problematic model.")
+                print("\nCommon fixes:")
+                print("1. Delete any existing database files")
+                print("2. Check for unsupported property types in models")
+                print("3. Verify all relationships are properly configured")
+                print(String(repeating: "=", count: 60) + "\n")
+                
+                fatalError("Could not create ModelContainer. See console output above for details.")
+            }
+            }
         }
     }()
 

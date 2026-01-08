@@ -5,28 +5,28 @@ import SwiftData
 @Model
 final class Goal {
     /// Unique identifier for the goal.
-    var id: UUID
+    var id: UUID = UUID()
     
     /// The display title of the goal.
-    var title: String
+    var title: String = ""
     
     /// Optional expanded description/notes for the goal.
     var goalDescription: String?
     
     /// Underlying raw string for the category.
-    var categoryRaw: String
+    var categoryRaw: String = GoalCategory.daily.rawValue
     
     /// Underlying raw string for the priority.
-    var priorityRaw: String
+    var priorityRaw: String = Priority.medium.rawValue
     
     /// Underlying raw string for the status.
-    var statusRaw: String
+    var statusRaw: String = GoalStatus.pending.rawValue
     
     /// The date when the goal was created.
-    var createdAt: Date
+    var createdAt: Date = Date()
     
     /// The date when the goal or its status was last updated.
-    var updatedAt: Date
+    var updatedAt: Date = Date()
     
     /// Optional deadline for the goal.
     var dueDate: Date?
@@ -35,17 +35,16 @@ final class Goal {
     var completedAt: Date?
     
     /// User-defined sort order for manual organization.
-    var sortOrder: Int
+    var sortOrder: Int = 0
     
     /// Whether the goal is currently in "Focus" mode.
-    var isFocused: Bool
+    var isFocused: Bool = false
 
     /// Subtasks associated with this goal. Cascades on deletion.
     @Relationship(deleteRule: .cascade, inverse: \Subtask.goal)
     var subtasks: [Subtask]?
 
     /// Tags associated with this goal.
-    @Relationship(deleteRule: .nullify, inverse: \Tag.goals)
     var tags: [Tag]?
 
     /// Reminders and alerts scheduled for this goal. Cascades on deletion.
@@ -57,35 +56,41 @@ final class Goal {
     var recurrence: RecurrenceRule?
 
     /// The category this goal belongs to (e.g., Daily, Weekly).
+    @Transient
     var category: GoalCategory {
         get { GoalCategory(rawValue: categoryRaw) ?? .daily }
         set { categoryRaw = newValue.rawValue }
     }
 
     /// The priority level of the goal.
+    @Transient
     var priority: Priority {
         get { Priority(rawValue: priorityRaw) ?? .medium }
         set { priorityRaw = newValue.rawValue }
     }
 
     /// The current lifecycle status of the goal.
+    @Transient
     var status: GoalStatus {
         get { GoalStatus(rawValue: statusRaw) ?? .pending }
         set { statusRaw = newValue.rawValue }
     }
 
     /// Whether the goal is in a completed state.
+    @Transient
     var isCompleted: Bool {
         status == .completed
     }
 
     /// Whether the goal's due date has passed without completion.
+    @Transient
     var isOverdue: Bool {
         guard let dueDate = dueDate, !isCompleted else { return false }
         return dueDate < Date()
     }
 
     /// The percentage of subtasks that have been completed.
+    @Transient
     var completionPercentage: Double {
         guard let subtasks = subtasks, !subtasks.isEmpty else {
             return isCompleted ? 1.0 : 0.0
@@ -95,11 +100,13 @@ final class Goal {
     }
 
     /// Subtasks sorted by their defined sort order.
+    @Transient
     var sortedSubtasks: [Subtask] {
         (subtasks ?? []).sorted { $0.sortOrder < $1.sortOrder }
     }
 
     /// Alerts sorted by their scheduled date.
+    @Transient
     var sortedAlerts: [GoalAlert] {
         (alerts ?? []).sorted { $0.scheduledDate < $1.scheduledDate }
     }
@@ -123,6 +130,19 @@ final class Goal {
         self.dueDate = dueDate
         self.completedAt = nil
         self.sortOrder = sortOrder
+        self.isFocused = false
+    }
+    
+    // CloudKit-compatible initializer (allows SwiftData to create instances)
+    init() {
+        self.id = UUID()
+        self.title = ""
+        self.categoryRaw = GoalCategory.daily.rawValue
+        self.priorityRaw = Priority.medium.rawValue
+        self.statusRaw = GoalStatus.pending.rawValue
+        self.createdAt = Date()
+        self.updatedAt = Date()
+        self.sortOrder = 0
         self.isFocused = false
     }
 

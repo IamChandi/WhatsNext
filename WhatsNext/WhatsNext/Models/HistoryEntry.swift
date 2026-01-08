@@ -13,20 +13,22 @@ enum HistoryAction: String, Codable {
 
 @Model
 final class HistoryEntry {
-    var id: UUID
-    var timestamp: Date
-    var actionRaw: String
-    var goalId: UUID
-    var goalTitle: String
+    var id: UUID = UUID()
+    var timestamp: Date = Date()
+    var actionRaw: String = HistoryAction.updated.rawValue
+    var goalId: UUID = UUID()
+    var goalTitle: String = ""
     var previousCategoryRaw: String?
     var newCategoryRaw: String?
     var metadata: Data?
 
+    @Transient
     var action: HistoryAction {
         get { HistoryAction(rawValue: actionRaw) ?? .updated }
         set { actionRaw = newValue.rawValue }
     }
 
+    @Transient
     var previousCategory: GoalCategory? {
         get {
             guard let raw = previousCategoryRaw else { return nil }
@@ -35,6 +37,7 @@ final class HistoryEntry {
         set { previousCategoryRaw = newValue?.rawValue }
     }
 
+    @Transient
     var newCategory: GoalCategory? {
         get {
             guard let raw = newCategoryRaw else { return nil }
@@ -59,5 +62,14 @@ final class HistoryEntry {
         self.previousCategoryRaw = previousCategory?.rawValue
         self.newCategoryRaw = newCategory?.rawValue
         self.metadata = metadata
+    }
+    
+    // CloudKit-compatible initializer
+    init() {
+        self.id = UUID()
+        self.timestamp = Date()
+        self.actionRaw = HistoryAction.updated.rawValue
+        self.goalId = UUID()
+        self.goalTitle = ""
     }
 }

@@ -3,14 +3,26 @@ import SwiftData
 
 @Model
 final class RecurrenceRule {
-    var id: UUID
-    var patternRaw: String
-    var interval: Int
-    var daysOfWeek: [Int]?
+    var id: UUID = UUID()
+    var patternRaw: String = RecurrencePattern.daily.rawValue
+    var interval: Int = 1
+    var daysOfWeekRaw: String? // Store as comma-separated string instead of [Int]
     var dayOfMonth: Int?
     var endDate: Date?
     var goal: Goal?
+    
+    @Transient
+    var daysOfWeek: [Int]? {
+        get {
+            guard let raw = daysOfWeekRaw, !raw.isEmpty else { return nil }
+            return raw.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+        }
+        set {
+            daysOfWeekRaw = newValue?.map { String($0) }.joined(separator: ",")
+        }
+    }
 
+    @Transient
     var pattern: RecurrencePattern {
         get { RecurrencePattern(rawValue: patternRaw) ?? .daily }
         set { patternRaw = newValue.rawValue }
@@ -26,9 +38,16 @@ final class RecurrenceRule {
         self.id = UUID()
         self.patternRaw = pattern.rawValue
         self.interval = interval
-        self.daysOfWeek = daysOfWeek
+        self.daysOfWeekRaw = daysOfWeek?.map { String($0) }.joined(separator: ",")
         self.dayOfMonth = dayOfMonth
         self.endDate = endDate
+    }
+    
+    // CloudKit-compatible initializer
+    init() {
+        self.id = UUID()
+        self.patternRaw = RecurrencePattern.daily.rawValue
+        self.interval = 1
     }
 
     func nextOccurrence(from date: Date) -> Date? {
@@ -74,6 +93,7 @@ final class RecurrenceRule {
         }
     }
 
+    @Transient
     var displayDescription: String {
         switch pattern {
         case .daily:

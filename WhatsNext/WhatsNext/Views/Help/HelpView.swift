@@ -170,22 +170,28 @@ struct KeyboardShortcutsHelp: View {
             HelpSectionTitle("Keyboard Shortcuts")
             
             HelpShortcutCategory(title: "Navigation") {
-                ShortcutRow(keys: "⌘⇧1", description: "Move selected goal to Daily")
-                ShortcutRow(keys: "⌘⇧2", description: "Move selected goal to Weekly")
-                ShortcutRow(keys: "⌘⇧3", description: "Move selected goal to Monthly")
-                ShortcutRow(keys: "⌘⇧4", description: "Move selected goal to What's Next?")
+                Group {
+                    ShortcutRow(keys: "⌘⇧1", description: "Move selected goal to Daily")
+                    ShortcutRow(keys: "⌘⇧2", description: "Move selected goal to Weekly")
+                    ShortcutRow(keys: "⌘⇧3", description: "Move selected goal to Monthly")
+                    ShortcutRow(keys: "⌘⇧4", description: "Move selected goal to What's Next?")
+                }
             }
             
             HelpShortcutCategory(title: "Goals") {
-                ShortcutRow(keys: "⌘N", description: "Create new goal")
-                ShortcutRow(keys: "⌘⏎", description: "Toggle goal completion")
-                ShortcutRow(keys: "⌘⇧F", description: "Toggle Focus Mode")
+                Group {
+                    ShortcutRow(keys: "⌘N", description: "Create new goal")
+                    ShortcutRow(keys: "⌘⏎", description: "Toggle goal completion")
+                    ShortcutRow(keys: "⌘⇧F", description: "Toggle Focus Mode")
+                }
             }
             
             HelpShortcutCategory(title: "Views") {
-                ShortcutRow(keys: "⌃⌘L", description: "Switch to List view")
-                ShortcutRow(keys: "⌃⌘B", description: "Switch to Board view")
-                ShortcutRow(keys: "⌘F", description: "Search goals")
+                Group {
+                    ShortcutRow(keys: "⌃⌘L", description: "Switch to List view")
+                    ShortcutRow(keys: "⌃⌘B", description: "Switch to Board view")
+                    ShortcutRow(keys: "⌘F", description: "Search goals")
+                }
             }
             
             HelpShortcutCategory(title: "Global") {
@@ -193,9 +199,11 @@ struct KeyboardShortcutsHelp: View {
             }
             
             HelpShortcutCategory(title: "Window") {
-                ShortcutRow(keys: "⌘,", description: "Open Settings")
-                ShortcutRow(keys: "⌘W", description: "Close window")
-                ShortcutRow(keys: "⌘Q", description: "Quit app")
+                Group {
+                    ShortcutRow(keys: "⌘,", description: "Open Settings")
+                    ShortcutRow(keys: "⌘W", description: "Close window")
+                    ShortcutRow(keys: "⌘Q", description: "Quit app")
+                }
             }
         }
     }
@@ -457,9 +465,14 @@ struct FeatureHelpItem: View {
     }
 }
 
-struct HelpShortcutCategory<Content: View>: View {
+struct HelpShortcutCategory: View {
     let title: String
-    @ViewBuilder let content: Content
+    let content: AnyView
+    
+    init<Content: View>(title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = AnyView(content())
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
