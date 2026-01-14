@@ -40,7 +40,7 @@ WhatsNextShared is a Swift Package that provides shared business logic, models, 
 SwiftData models representing the core domain entities:
 
 - **Goal**: Main entity representing a task or goal
-- **Note**: Rich text notes associated with goals
+- **Note**: Rich text notes associated with goals (supports archiving)
 - **Subtask**: Subtasks within a goal
 - **Tag**: Tags for categorizing goals
 - **GoalAlert**: Scheduled reminders
@@ -52,6 +52,7 @@ SwiftData models representing the core domain entities:
 - Use raw strings for enum storage (CloudKit compatibility)
 - Provide computed properties for type-safe access
 - Cascade deletes for related entities
+- Archive support for entities that need it (Note model includes `isArchived` and `archivedAt`)
 
 ### Services
 
@@ -68,10 +69,11 @@ Business logic services that encapsulate data operations:
 - Daily reminder management
 - Notification permission handling
 
-#### NoteService
+#### NoteService (macOS only)
 - Note CRUD operations
 - Content size validation
 - Rich text handling
+- Archive management
 
 #### AnalyticsService
 - Analytics calculations
@@ -216,6 +218,49 @@ The package uses conditional compilation for platform-specific code:
 
 This allows the same codebase to work on both platforms while maintaining platform-specific optimizations.
 
+## Model Migration Status
+
+**✅ Fully Migrated to Shared Package:**
+- All models (Goal, Note, Subtask, Tag, GoalAlert, RecurrenceRule, HistoryEntry) are now in `WhatsNextShared`
+- Both macOS and iOS apps use the shared models exclusively
+- No duplicate model definitions
+- Consistent behavior across platforms
+
+**Benefits:**
+- Single source of truth for data models
+- Automatic CloudKit sync compatibility
+- Easier maintenance and bug fixes
+- Consistent feature set across platforms
+
+## Design System Integration
+
+Both platforms use design system tokens for consistent styling:
+
+- **macOS**: Uses `DesignTokens` (in WhatsNext app) for colors, typography, spacing, shadows
+- **iOS**: Uses `DesignSystem` (in WhatsNextiOS app) for iOS-specific design tokens
+- **Shared Components**: `ModernEmptyState` (macOS) and `EmptyStateView` (iOS) use design system tokens
+- **Consistent Styling**: All views follow platform design guidelines while maintaining brand consistency
+
+## Recent Improvements
+
+### Model Consolidation
+- ✅ iOS app fully migrated to use shared models from `WhatsNextShared`
+- ✅ All Goal, Note, and related model references use shared types
+- ✅ Schema explicitly uses `WhatsNextShared.*` models for clarity
+- ✅ Eliminated code duplication between platforms
+
+### Notes Feature Enhancements
+- ✅ Archive functionality added to Note model
+- ✅ Archive UI implemented on both platforms (context menu on macOS, swipe actions on iOS)
+- ✅ Notes view optimized with proper empty states
+- ✅ Rich text editor toolbar with consistent button sizing
+
+### UI Consistency
+- ✅ Design system tokens used throughout
+- ✅ Consistent typography and spacing
+- ✅ Platform-appropriate button styles
+- ✅ Improved Morning Briefing view styling
+
 ## Future Improvements
 
 - [ ] Add more comprehensive performance tests
@@ -223,3 +268,4 @@ This allows the same codebase to work on both platforms while maintaining platfo
 - [ ] Add batch operations for bulk updates
 - [ ] Implement offline-first sync strategy
 - [ ] Add data migration utilities
+- [ ] Consider migrating remaining platform-specific models to shared package

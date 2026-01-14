@@ -85,6 +85,7 @@ struct RichTextToolbar: View {
             // Bold
             Button(action: { applyFormatting(.boldFontMask) }) {
                 Image(systemName: "bold")
+                    .frame(width: 20, height: 20)
             }
             .help("Bold")
             .keyboardShortcut("b", modifiers: .command)
@@ -92,6 +93,7 @@ struct RichTextToolbar: View {
             // Italic
             Button(action: { applyFormatting(.italicFontMask) }) {
                 Image(systemName: "italic")
+                    .frame(width: 20, height: 20)
             }
             .help("Italic")
             .keyboardShortcut("i", modifiers: .command)
@@ -99,36 +101,42 @@ struct RichTextToolbar: View {
             // Underline
             Button(action: { applyUnderline() }) {
                 Image(systemName: "underline")
+                    .frame(width: 20, height: 20)
             }
             .help("Underline")
             .keyboardShortcut("u", modifiers: .command)
             
             Divider()
+                .frame(height: 20)
             
             // Bullet list
             Button(action: { insertList(type: .bullet) }) {
                 Image(systemName: "list.bullet")
+                    .frame(width: 20, height: 20)
             }
             .help("Bullet List")
             
             // Numbered list
             Button(action: { insertList(type: .number) }) {
                 Image(systemName: "list.number")
+                    .frame(width: 20, height: 20)
             }
             .help("Numbered List")
             
             Divider()
+                .frame(height: 20)
             
             // Link
             Button(action: { insertLink() }) {
                 Image(systemName: "link")
+                    .frame(width: 20, height: 20)
             }
             .help("Insert Link")
             .keyboardShortcut("k", modifiers: .command)
         }
         .buttonStyle(.borderless)
+        .frame(height: 28)
         .padding(.horizontal, 8)
-        .padding(.vertical, 4)
         .background(Color(NSColor.controlBackgroundColor))
     }
     

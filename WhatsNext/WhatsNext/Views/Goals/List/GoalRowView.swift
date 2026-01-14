@@ -8,74 +8,92 @@ struct GoalRowView: View {
 
     @State private var isHovering = false
     @State private var showingEditor = false
+    @State private var isPressing = false
 
     var body: some View {
-        HStack(spacing: 12) {
-            // Completion checkbox
+        HStack(spacing: DesignTokens.Spacing.md) {
+            // Completion checkbox with animation
             Button(action: toggleCompletion) {
                 Image(systemName: goal.isCompleted ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundStyle(goal.isCompleted ? .green : .secondary)
+                    .foregroundStyle(goal.isCompleted ? DesignTokens.Colors.success : DesignTokens.Colors.textSecondary)
+                    .symbolEffect(.bounce, value: goal.isCompleted)
             }
             .buttonStyle(.plain)
+            .scaleEffect(isPressing ? 0.9 : 1.0)
+            .animation(DesignTokens.Animation.quick, value: isPressing)
 
-            // Main content
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
+            // Main content with progressive disclosure
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                HStack(spacing: DesignTokens.Spacing.sm) {
                     Text(goal.title)
-                        .font(.body)
+                        .font(DesignTokens.Typography.bodyLarge)
                         .strikethrough(goal.isCompleted)
-                        .foregroundStyle(goal.isCompleted ? .secondary : .primary)
+                        .foregroundStyle(goal.isCompleted ? DesignTokens.Colors.textSecondary : DesignTokens.Colors.textPrimary)
+                        .animation(DesignTokens.Animation.gentle, value: goal.isCompleted)
 
                     if goal.isFocused {
                         Image(systemName: "scope")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(DesignTokens.Colors.warning)
                             .font(.caption)
+                            .symbolEffect(.pulse)
+                            .transition(.scale.combined(with: .opacity))
                     }
                 }
 
-                HStack(spacing: 8) {
-                    // Priority indicator
-                    PriorityBadge(priority: goal.priority)
+                // Metadata badges - only show when hovering or always for mobile
+                if isHovering || !goal.isCompleted {
+                    HStack(spacing: DesignTokens.Spacing.sm) {
+                        // Priority indicator
+                        Badge(style: .priority(goal.priority), size: .small, animated: true)
+                            .transition(.scale.combined(with: .opacity))
 
-                    // Due date
-                    if let dueDate = goal.dueDate {
-                        DueDateBadge(date: dueDate, isOverdue: goal.isOverdue)
-                    }
+                        // Due date
+                        if let dueDate = goal.dueDate {
+                            Badge(style: .dueDate(dueDate, isOverdue: goal.isOverdue), size: .small, animated: true)
+                                .transition(.scale.combined(with: .opacity))
+                        }
 
-                    // Subtask progress
-                    if let subtasks = goal.subtasks, !subtasks.isEmpty {
-                        SubtaskProgressBadge(
-                            completed: subtasks.filter(\.isCompleted).count,
-                            total: subtasks.count
-                        )
-                    }
+                        // Subtask progress
+                        if let subtasks = goal.subtasks, !subtasks.isEmpty {
+                            Badge(
+                                style: .subtaskProgress(completed: subtasks.filter(\.isCompleted).count, total: subtasks.count),
+                                size: .small,
+                                animated: true
+                            )
+                            .transition(.scale.combined(with: .opacity))
+                        }
 
-                    // Alert indicator
-                    if let alerts = goal.alerts, !alerts.isEmpty {
-                        let upcoming = alerts.filter(\.isUpcoming).count
-                        if upcoming > 0 {
-                            AlertBadge(count: upcoming)
+                        // Alert indicator
+                        if let alerts = goal.alerts, !alerts.isEmpty {
+                            let upcoming = alerts.filter(\.isUpcoming).count
+                            if upcoming > 0 {
+                                Badge(style: .alert(count: upcoming), size: .small, animated: true)
+                                    .transition(.scale.combined(with: .opacity))
+                            }
+                        }
+
+                        // Tags
+                        if let tags = goal.tags, !tags.isEmpty {
+                            TagsPreview(tags: Array(tags.prefix(2)))
+                                .transition(.scale.combined(with: .opacity))
+                        }
+
+                        // Recurrence indicator
+                        if goal.recurrence != nil {
+                            Image(systemName: "repeat")
+                                .font(.caption)
+                                .foregroundStyle(DesignTokens.Colors.textSecondary)
+                                .transition(.scale.combined(with: .opacity))
                         }
                     }
-
-                    // Tags
-                    if let tags = goal.tags, !tags.isEmpty {
-                        TagsPreview(tags: Array(tags.prefix(2)))
-                    }
-
-                    // Recurrence indicator
-                    if goal.recurrence != nil {
-                        Image(systemName: "repeat")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    .animation(DesignTokens.Animation.quick, value: isHovering)
                 }
             }
 
             Spacer()
 
-            // Category indicator (for context)
+            // Quick actions menu - appears on hover
             if isHovering {
                 Menu {
                     ForEach(GoalCategory.allCases) { cat in
@@ -97,17 +115,39 @@ struct GoalRowView: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignTokens.Colors.textSecondary)
+                        .symbolRenderingMode(.hierarchical)
                 }
                 .menuStyle(.borderlessButton)
                 .menuIndicator(.hidden)
                 .frame(width: 24)
+                .transition(.scale.combined(with: .opacity))
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, DesignTokens.Spacing.sm)
+        .padding(.horizontal, DesignTokens.Spacing.xs)
+        .background(
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                .fill(isHovering ? DesignTokens.Colors.surfaceSecondary : Color.clear)
+        )
+        .scaleEffect(goal.isCompleted ? 0.98 : 1.0)
+        .opacity(goal.isCompleted ? DesignTokens.Opacity.strong : DesignTokens.Opacity.opaque)
+        .animation(DesignTokens.Animation.smooth, value: goal.isCompleted)
         .contentShape(Rectangle())
         .onHover { hovering in
-            isHovering = hovering
+            withAnimation(DesignTokens.Animation.quick) {
+                isHovering = hovering
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityHint(accessibilityHint)
+        .accessibilityAddTraits(goal.isCompleted ? [.isSelected] : [])
+        .accessibilityAction(named: goal.isCompleted ? "Mark Incomplete" : "Mark Complete") {
+            toggleCompletion()
+        }
+        .accessibilityAction(named: "Archive") {
+            archiveGoal()
         }
         .contextMenu {
             Button(action: toggleCompletion) {
@@ -116,6 +156,8 @@ struct GoalRowView: View {
                     systemImage: goal.isCompleted ? "circle" : "checkmark.circle"
                 )
             }
+            .keyboardShortcut(.return, modifiers: .command)
+            .help("Toggle completion (⌘↩)")
 
             Divider()
 
@@ -159,11 +201,17 @@ struct GoalRowView: View {
     }
 
     private func toggleCompletion() {
-        withAnimation(.easeInOut(duration: AppConstants.Animation.quick)) {
+        isPressing = true
+        withAnimation(DesignTokens.Animation.bouncy) {
             goal.toggleCompletion()
             if !modelContext.saveWithErrorHandling() {
                 ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalRowView.toggleCompletion")
             }
+        }
+
+        // Reset pressing state after animation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            isPressing = false
         }
     }
 
@@ -201,6 +249,39 @@ struct GoalRowView: View {
         modelContext.delete(goal)
         if !modelContext.saveWithErrorHandling() {
             ErrorHandler.shared.handle(.deleteFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalRowView.deleteGoal")
+        }
+    }
+
+    // MARK: - Accessibility
+
+    private var accessibilityLabel: String {
+        var label = goal.title
+
+        if goal.isCompleted {
+            label += ", completed"
+        }
+
+        label += ", \(goal.priority.displayName) priority"
+
+        if let dueDate = goal.dueDate {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            label += ", due \(formatter.string(from: dueDate))"
+        }
+
+        if let subtasks = goal.subtasks, !subtasks.isEmpty {
+            let completed = subtasks.filter(\.isCompleted).count
+            label += ", \(completed) of \(subtasks.count) subtasks completed"
+        }
+
+        return label
+    }
+
+    private var accessibilityHint: String {
+        if goal.isCompleted {
+            return "Double tap to mark as incomplete"
+        } else {
+            return "Double tap to mark as complete"
         }
     }
 }

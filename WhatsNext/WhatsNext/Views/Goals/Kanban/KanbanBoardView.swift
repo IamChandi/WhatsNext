@@ -24,7 +24,8 @@ public struct KanbanBoardView: View {
     @State private var draggedGoal: Goal?
     @State private var showingNewGoalSheet = false
     @State private var newGoalCategory: GoalCategory = .daily
-    
+    @State private var dragOffset: CGSize = .zero
+
     /// Public initializer - @Query properties are automatically injected by SwiftUI
     public init(initialCategory: GoalCategory, searchText: String, selectedGoal: Binding<Goal?>) {
         self.initialCategory = initialCategory
@@ -41,7 +42,7 @@ public struct KanbanBoardView: View {
 
     public var body: some View {
         ScrollView(.horizontal, showsIndicators: true) {
-            HStack(alignment: .top, spacing: 16) {
+            HStack(alignment: .top, spacing: DesignTokens.Spacing.lg) {
                 ForEach(GoalCategory.allCases) { category in
                     KanbanColumnView(
                         category: category,
@@ -58,9 +59,9 @@ public struct KanbanBoardView: View {
                     )
                 }
             }
-            .padding()
+            .padding(DesignTokens.Spacing.lg)
         }
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(DesignTokens.Colors.surfacePrimary)
         .navigationTitle("Board View")
         .sheet(isPresented: $showingNewGoalSheet) {
             GoalEditorSheet(category: newGoalCategory) { goal in
@@ -74,12 +75,16 @@ public struct KanbanBoardView: View {
     }
 
     private func moveGoal(_ goal: Goal, to category: GoalCategory) {
-        withAnimation(.easeInOut(duration: AppConstants.Animation.quick)) {
+        withAnimation(DesignTokens.Animation.smooth) {
             goal.move(to: category)
             if !modelContext.saveWithErrorHandling() {
                 ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "KanbanBoardView.moveGoal")
             }
         }
+
+        // Reset drag state
+        draggedGoal = nil
+        dragOffset = .zero
     }
 }
 
@@ -94,41 +99,35 @@ struct KanbanColumnView: View {
     @State private var isTargeted = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Header
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
+            // Header with enhanced styling
             HStack {
-                Text(category.shortName.uppercased())
-                    .font(.subheadline)
-                    .fontWeight(.bold)
-                    .foregroundStyle(category.color)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(category.color.opacity(0.1))
-                    .cornerRadius(6)
+                Badge(style: .category(category), size: .medium)
 
                 Spacer()
-                
-                Text("\(goals.count)")
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.secondary)
+
+                Badge(style: .count(goals.count, color: DesignTokens.Colors.textSecondary), size: .small)
 
                 Button(action: onAddGoal) {
-                    Image(systemName: "plus")
-                        .font(.headline)
-                        .foregroundStyle(.primary)
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(category.color)
+                        .symbolRenderingMode(.hierarchical)
                 }
                 .buttonStyle(.plain)
+                .help("Add goal to \(category.displayName)")
+                .scaleEffect(isTargeted ? 1.1 : 1.0)
+                .animation(DesignTokens.Animation.quick, value: isTargeted)
             }
-            .padding(.horizontal)
-            .padding(.top, 12)
+            .padding(.horizontal, DesignTokens.Spacing.lg)
+            .padding(.top, DesignTokens.Spacing.md)
 
             Divider()
-                .padding(.horizontal)
+                .padding(.horizontal, DesignTokens.Spacing.lg)
 
-            // Cards
+            // Cards with enhanced drag preview
             ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(spacing: 8) {
+                LazyVStack(spacing: DesignTokens.Spacing.sm) {
                     ForEach(goals) { goal in
                         KanbanCardView(
                             goal: goal,
@@ -136,37 +135,62 @@ struct KanbanColumnView: View {
                             onSelect: { selectedGoal = goal }
                         )
                         .draggable(goal.id.uuidString) {
+                            // Enhanced drag preview
                             KanbanCardView(goal: goal, isSelected: false, onSelect: {})
                                 .frame(width: 260)
-                                .opacity(0.8)
+                                .cardStyle(elevation: .large)
+                                .opacity(DesignTokens.Opacity.intense)
+                                .rotationEffect(.degrees(3))
+                                .scaleEffect(1.05)
                         }
                         .onDrag {
                             draggedGoal = goal
                             return NSItemProvider(object: goal.id.uuidString as NSString)
                         }
+                        .opacity(draggedGoal?.id == goal.id ? DesignTokens.Opacity.light : DesignTokens.Opacity.opaque)
+                        .animation(DesignTokens.Animation.quick, value: draggedGoal?.id)
                     }
 
+                    // Drop zone indicator when empty
                     if goals.isEmpty {
-                        Text("No goals")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 40)
+                        VStack(spacing: DesignTokens.Spacing.md) {
+                            Image(systemName: isTargeted ? "arrow.down.circle.fill" : "tray")
+                                .font(.system(size: DesignTokens.IconSize.xxl))
+                                .foregroundStyle(isTargeted ? category.color : DesignTokens.Colors.textTertiary)
+                                .symbolEffect(.bounce, value: isTargeted)
+
+                            Text(isTargeted ? "Drop Here" : "No goals")
+                                .font(DesignTokens.Typography.bodySmall)
+                                .foregroundStyle(DesignTokens.Colors.textSecondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, DesignTokens.Spacing.xxl)
+                        .animation(DesignTokens.Animation.bouncy, value: isTargeted)
                     }
                 }
-                .padding(.horizontal)
-                .padding(.bottom)
+                .padding(.horizontal, DesignTokens.Spacing.md)
+                .padding(.bottom, DesignTokens.Spacing.md)
             }
         }
-        .frame(width: 280)
+        .frame(width: 300)
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(isTargeted ? category.color.opacity(0.1) : Color.clear)
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
+                .fill(DesignTokens.Colors.surfaceSecondary)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(isTargeted ? category.color : .clear, lineWidth: 2)
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
+                .strokeBorder(
+                    isTargeted ? category.color.opacity(0.8) : DesignTokens.Colors.neutral200,
+                    lineWidth: isTargeted ? DesignTokens.BorderWidth.thick : DesignTokens.BorderWidth.thin
+                )
         )
+        .shadow(
+            color: isTargeted ? category.color.opacity(0.3) : DesignTokens.Shadow.sm.color,
+            radius: isTargeted ? 12 : DesignTokens.Shadow.sm.radius,
+            y: isTargeted ? 4 : DesignTokens.Shadow.sm.y
+        )
+        .scaleEffect(isTargeted ? 1.02 : 1.0)
+        .animation(DesignTokens.Animation.smooth, value: isTargeted)
         .dropDestination(for: String.self) { items, location in
             guard let idString = items.first,
                   let goalId = UUID(uuidString: idString),
@@ -176,7 +200,7 @@ struct KanbanColumnView: View {
             onDropGoal(goal)
             return true
         } isTargeted: { targeted in
-            withAnimation(.easeInOut(duration: 0.15)) {
+            withAnimation(DesignTokens.Animation.quick) {
                 isTargeted = targeted
             }
         }
@@ -192,7 +216,7 @@ struct KanbanCardView: View {
     @State private var isHovering = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             // Header with priority and status
             HStack {
                 PriorityDot(priority: goal.priority)
@@ -201,57 +225,54 @@ struct KanbanCardView: View {
 
                 if goal.isCompleted {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(DesignTokens.Colors.success)
                         .font(.caption)
+                        .symbolEffect(.bounce, value: goal.isCompleted)
                 }
 
                 if goal.isFocused {
                     Image(systemName: "scope")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(DesignTokens.Colors.warning)
                         .font(.caption)
+                        .symbolEffect(.pulse)
                 }
             }
 
-            // Title
+            // Title with improved typography
             Text(goal.title)
-                .font(.body)
+                .font(DesignTokens.Typography.bodyLarge)
                 .fontWeight(.medium)
                 .strikethrough(goal.isCompleted)
-                .foregroundStyle(goal.isCompleted ? .secondary : .primary)
+                .foregroundStyle(goal.isCompleted ? DesignTokens.Colors.textSecondary : DesignTokens.Colors.textPrimary)
                 .lineLimit(2)
+                .animation(DesignTokens.Animation.gentle, value: goal.isCompleted)
 
             // Description preview
             if let description = goal.goalDescription, !description.isEmpty {
                 Text(description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(DesignTokens.Typography.bodySmall)
+                    .foregroundStyle(DesignTokens.Colors.textSecondary)
                     .lineLimit(2)
             }
 
-            // Metadata row
-            HStack(spacing: 8) {
+            // Metadata badges using Badge component
+            HStack(spacing: DesignTokens.Spacing.xs) {
                 if let dueDate = goal.dueDate {
-                    HStack(spacing: 2) {
-                        Image(systemName: "calendar")
-                        Text(dueDateText(dueDate))
-                    }
-                    .font(.caption2)
-                    .foregroundStyle(goal.isOverdue ? .red : .secondary)
+                    Badge(style: .dueDate(dueDate, isOverdue: goal.isOverdue), size: .small)
                 }
 
                 if let subtasks = goal.subtasks, !subtasks.isEmpty {
-                    HStack(spacing: 2) {
-                        Image(systemName: "checklist")
-                        Text("\(subtasks.filter(\.isCompleted).count)/\(subtasks.count)")
-                    }
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    Badge(
+                        style: .subtaskProgress(
+                            completed: subtasks.filter(\.isCompleted).count,
+                            total: subtasks.count
+                        ),
+                        size: .small
+                    )
                 }
 
                 if let alerts = goal.alerts, alerts.contains(where: \.isUpcoming) {
-                    Image(systemName: "bell.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.orange)
+                    Badge(style: .alert(count: 1), size: .small)
                 }
 
                 Spacer()
@@ -259,44 +280,44 @@ struct KanbanCardView: View {
                 if goal.recurrence != nil {
                     Image(systemName: "repeat")
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignTokens.Colors.textSecondary)
                 }
             }
 
             // Tags
             if let tags = goal.tags, !tags.isEmpty {
-                HStack(spacing: 4) {
-                    ForEach(Array(tags.prefix(3))) { tag in
-                        Text(tag.name)
-                            .font(.caption2)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(tag.color.opacity(0.15))
-                            .foregroundStyle(tag.color)
-                            .clipShape(Capsule())
-                    }
-                    if tags.count > 3 {
-                        Text("+\(tags.count - 3)")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                TagsPreview(tags: Array(tags.prefix(3)))
             }
         }
-        .padding(12)
+        .padding(DesignTokens.Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Theme.cardBackground)
-                .shadow(color: .black.opacity(isHovering ? 0.15 : 0.1), radius: isHovering ? 6 : 3, y: 2)
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                .fill(DesignTokens.Colors.surfaceElevated)
+        )
+        .shadow(
+            color: isHovering ? DesignTokens.Shadow.lg.color : DesignTokens.Shadow.md.color,
+            radius: isHovering ? DesignTokens.Shadow.lg.radius : DesignTokens.Shadow.md.radius,
+            y: isHovering ? DesignTokens.Shadow.lg.y : DesignTokens.Shadow.md.y
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 2)
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                .strokeBorder(
+                    isSelected ? DesignTokens.Colors.accent : Color.clear,
+                    lineWidth: DesignTokens.BorderWidth.regular
+                )
         )
+        .scaleEffect(isHovering ? 1.02 : 1.0)
+        .opacity(goal.isCompleted ? DesignTokens.Opacity.strong : DesignTokens.Opacity.opaque)
+        .animation(DesignTokens.Animation.quick, value: isHovering)
+        .animation(DesignTokens.Animation.smooth, value: goal.isCompleted)
         .contentShape(Rectangle())
         .onTapGesture(perform: onSelect)
-        .onHover { isHovering = $0 }
+        .onHover { hovering in
+            withAnimation(DesignTokens.Animation.quick) {
+                isHovering = hovering
+            }
+        }
         .contextMenu {
             Button(action: toggleCompletion) {
                 Label(

@@ -14,7 +14,7 @@ WhatsNext is a modern goal-tracking application available for both **macOS** and
 - **Natural Language Parsing**: Create goals quickly by typing phrases like `!high Meeting tomorrow`
 - **Multi-view Support**: Switch between Checklist and Kanban board views
 - **Smart Reminders**: Automated notifications for morning planning and end-of-day reviews
-- **Archive System**: Keep your workspace clean by archiving completed or deferred goals
+- **Archive System**: Keep your workspace clean by archiving completed or deferred goals and notes
 - **Recurring Goals**: Set up goals that repeat daily, weekly, or monthly
 - **Tags & Organization**: Organize goals with tags and filter by category
 - **Subtasks**: Break down goals into manageable subtasks
@@ -48,7 +48,7 @@ A Swift Package containing all shared code between macOS and iOS:
   - `GoalAlert`: Reminders and notifications
   - `RecurrenceRule`: Recurring goal patterns
   - `HistoryEntry`: Track goal changes over time
-  - `Note`: Rich text notes with bidirectional goal linking
+  - `Note`: Rich text notes with bidirectional goal linking and archive support
 - **Services**: Platform-agnostic business logic
   - `GoalDataService`: Optimized database queries with pagination
   - `NotificationService`: Handles local notifications
@@ -167,7 +167,8 @@ Schema([
     Tag.self,            // Tags for organization
     GoalAlert.self,      // Reminders and notifications
     RecurrenceRule.self, // Recurring patterns
-    HistoryEntry.self   // Change history
+    HistoryEntry.self,   // Change history
+    Note.self            // Rich text notes with archive support
 ])
 ```
 
@@ -214,6 +215,21 @@ Run tests with `⌘ + U` in Xcode.
 - ✅ Input validation
 - ✅ Comprehensive test coverage
 - ✅ Shared package architecture for code reuse
+- ✅ Design system tokens (DesignTokens/DesignSystem) for consistent styling
+- ✅ Full model migration to shared package (iOS app uses all shared models)
+
+### Notes Features
+- ✅ Rich text notes with formatting toolbar
+- ✅ Archive functionality for notes (macOS and iOS)
+- ✅ Bidirectional linking between goals and notes
+- ✅ Search functionality across notes
+- ✅ Platform-optimized note editors (macOS: NSTextView, iOS: UITextView)
+
+### UI/UX Improvements
+- ✅ Consistent design system usage across all views
+- ✅ Modern empty states with DesignTokens
+- ✅ Platform-appropriate button styling
+- ✅ Improved Morning Briefing view with consistent typography
 
 ## Development
 

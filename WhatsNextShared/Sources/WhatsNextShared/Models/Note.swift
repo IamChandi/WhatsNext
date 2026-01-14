@@ -38,6 +38,12 @@ public final class Note {
     /// User-defined sort order for manual organization.
     public var sortOrder: Int = 0
     
+    /// Whether the note is archived.
+    public var isArchived: Bool = false
+    
+    /// The date when the note was archived (if archived).
+    public var archivedAt: Date?
+    
     /// Relationship to the parent goal. Cascade delete when goal is deleted.
     @Relationship(inverse: \Goal.notes)
     public var goal: Goal?
@@ -103,6 +109,8 @@ public final class Note {
         self.updatedAt = Date()
         self.plainText = ""
         self.sortOrder = 0
+        self.isArchived = false
+        self.archivedAt = nil
     }
     
     /// Convenience initializer for creating a new note.
@@ -114,6 +122,8 @@ public final class Note {
         self.goal = goal
         self.plainText = attributedText?.string ?? ""
         self.sortOrder = 0
+        self.isArchived = false
+        self.archivedAt = nil
         
         // Encode attributed text
         if let attributedText = attributedText {
@@ -137,6 +147,8 @@ public final class Note {
         self.goal = goal
         self.plainText = ""
         self.sortOrder = 0
+        self.isArchived = false
+        self.archivedAt = nil
     }
     #endif
     
@@ -147,4 +159,18 @@ public final class Note {
         updatedAt = Date()
     }
     #endif
+    
+    /// Archives the note, removing it from active lists.
+    public func archive() {
+        isArchived = true
+        archivedAt = Date()
+        updatedAt = Date()
+    }
+    
+    /// Restores the note from the archive.
+    public func unarchive() {
+        isArchived = false
+        archivedAt = nil
+        updatedAt = Date()
+    }
 }

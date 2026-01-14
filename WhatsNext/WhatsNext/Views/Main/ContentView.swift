@@ -27,7 +27,7 @@ struct DetailLayout: View {
             )
             .padding(.bottom, sidebarItem == .briefing ? 0 : 80)
 
-            if sidebarItem != .briefing {
+            if sidebarItem != .briefing && sidebarItem != .notes {
                 QuickEntryField(currentSidebarItem: sidebarItem)
                     .frame(maxWidth: 600)
                     .padding(.bottom, 20)
@@ -54,31 +54,90 @@ struct QuickEntryField: View {
     @Environment(\.modelContext) private var modelContext
     @State private var text = ""
     @FocusState private var isFocused: Bool
+    @State private var parsedConfig: GoalConfig?
 
     var body: some View {
-        HStack {
+        HStack(spacing: DesignTokens.Spacing.md) {
             Image(systemName: "plus.circle.fill")
-                .foregroundStyle(Theme.forwardOrange)
+                .foregroundStyle(DesignTokens.Colors.accent)
                 .font(.title2)
+                .symbolEffect(.bounce, value: isFocused)
 
-            TextField(prompt, text: $text)
-                .textFieldStyle(.plain)
-                .font(.title3)
-                .focused($isFocused)
-                .onSubmit(submit)
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                TextField(prompt, text: $text)
+                    .textFieldStyle(.plain)
+                    .font(DesignTokens.Typography.h3)
+                    .focused($isFocused)
+                    .onSubmit(submit)
+                    .onChange(of: text) { _, newValue in
+                        // Parse as user types
+                        if !newValue.isEmpty {
+                            parsedConfig = NaturalLanguageParser.parse(newValue)
+                        } else {
+                            parsedConfig = nil
+                        }
+                    }
+
+                // Show parsed metadata chips
+                if let config = parsedConfig, !text.isEmpty {
+                    HStack(spacing: DesignTokens.Spacing.sm) {
+                        // Priority chip
+                        if config.priority != .medium {
+                            Badge(style: .priority(config.priority), size: .small, animated: true)
+                        }
+
+                        // Due date chip
+                        if let dueDate = config.dueDate {
+                            Badge(
+                                style: .custom(
+                                    text: formattedDate(dueDate),
+                                    icon: "calendar",
+                                    backgroundColor: DesignTokens.Colors.info.opacity(0.15),
+                                    foregroundColor: DesignTokens.Colors.info
+                                ),
+                                size: .small,
+                                animated: true
+                            )
+                        }
+                    }
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
 
             if !text.isEmpty {
-                Button(action: { text = "" }) {
+                Button(action: {
+                    withAnimation(DesignTokens.Animation.quick) {
+                        text = ""
+                        parsedConfig = nil
+                    }
+                }) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignTokens.Colors.textSecondary)
+                        .symbolRenderingMode(.hierarchical)
                 }
                 .buttonStyle(.plain)
+                .transition(.scale.combined(with: .opacity))
             }
         }
-        .padding()
-        .background(Theme.cardBackground)
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+        .padding(DesignTokens.Spacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                .fill(DesignTokens.Colors.surfaceElevated)
+                .shadow(
+                    color: isFocused ? DesignTokens.Colors.accent.opacity(0.3) : DesignTokens.Shadow.lg.color,
+                    radius: isFocused ? 12 : DesignTokens.Shadow.lg.radius,
+                    x: DesignTokens.Shadow.lg.x,
+                    y: DesignTokens.Shadow.lg.y
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                .strokeBorder(
+                    isFocused ? DesignTokens.Colors.accent.opacity(0.5) : Color.clear,
+                    lineWidth: DesignTokens.BorderWidth.regular
+                )
+        )
+        .animation(DesignTokens.Animation.smooth, value: isFocused)
         .padding(.horizontal)
         .onChange(of: AppState.shared.focusQuickEntry) { _, _ in
             isFocused = true
@@ -92,10 +151,23 @@ struct QuickEntryField: View {
         }
     }
 
+    private func formattedDate(_ date: Date) -> String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(date) {
+            return "Today"
+        } else if calendar.isDateInTomorrow(date) {
+            return "Tomorrow"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d"
+            return formatter.string(from: date)
+        }
+    }
+
     private func submit() {
         guard !text.isEmpty else { return }
 
-        let config = NaturalLanguageParser.parse(text)
+        let config = parsedConfig ?? NaturalLanguageParser.parse(text)
         let category: GoalCategory = {
             if case .category(let cat) = currentSidebarItem { return cat }
             return .daily
@@ -112,10 +184,13 @@ struct QuickEntryField: View {
         if !modelContext.saveWithErrorHandling() {
             ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "QuickEntryField.createGoal")
         } else {
-            text = ""
+            withAnimation(DesignTokens.Animation.quick) {
+                text = ""
+                parsedConfig = nil
+            }
         }
-        
-        // Haptic feedback or toast could be added here
+
+        // Notify goals updated
         AppState.shared.notifyGoalsUpdated()
     }
 }
@@ -186,14 +261,16 @@ struct ContentView: View {
             }
         }
         .toolbar {
-
-            ToolbarItemGroup(placement: .primaryAction) {
-                ViewModePicker(viewMode: $viewMode)
-                
-                Button(action: { showingNewGoalSheet = true }) {
-                    Label("New Goal", systemImage: "plus")
+            // Only show toolbar items for goal categories, not for Notes, Archive, Analytics, etc.
+            if case .category = selectedSidebarItem {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    ViewModePicker(viewMode: $viewMode)
+                    
+                    Button(action: { showingNewGoalSheet = true }) {
+                        Label("New Goal", systemImage: "plus")
+                    }
+                    .keyboardShortcut("n", modifiers: .command)
                 }
-                .keyboardShortcut("n", modifiers: .command)
             }
         }
         .sheet(isPresented: $showingNewGoalSheet) {

@@ -93,42 +93,43 @@ struct BriefingView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            HStack {
-                VStack(alignment: .leading) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                     Text("Morning Briefing")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundStyle(Theme.presidentialBlue)
+                        .font(DesignTokens.Typography.h1)
+                        .foregroundStyle(DesignTokens.Colors.primary)
                     
                     Text(Date(), format: .dateTime.weekday(.wide).month().day())
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
+                        .font(DesignTokens.Typography.h3)
+                        .foregroundStyle(DesignTokens.Colors.textSecondary)
                 }
+                
                 Spacer()
                 
                 Button(action: { isWalking = true }) {
                     Label("Start Walk", systemImage: "figure.walk")
-                        .font(.headline)
-                        .padding()
+                        .font(DesignTokens.Typography.labelProminent)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(Theme.forwardOrange)
+                .controlSize(.large)
+                .tint(DesignTokens.Colors.accent)
                 .disabled(sortedItems.isEmpty)
             }
-            .padding()
-            .background(Theme.cardBackground)
-            .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
+            .padding(DesignTokens.Spacing.lg)
+            .background(DesignTokens.Colors.surfaceElevated)
+            .shadow(
+                color: DesignTokens.Shadow.sm.color,
+                radius: DesignTokens.Shadow.sm.radius,
+                x: DesignTokens.Shadow.sm.x,
+                y: DesignTokens.Shadow.sm.y
+            )
             
             // Content
             if sortedItems.isEmpty {
-                ContentUnavailableView(
-                    "All Clear",
-                    systemImage: "checkmark.seal",
-                    description: Text("No immediate items for your briefing.")
-                )
+                ModernEmptyState(config: .noBriefing())
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 16) {
+                    LazyVStack(spacing: DesignTokens.Spacing.md) {
                         ForEach(sortedItems) { goal in
                             BriefingCard(goal: goal)
                                 .onTapGesture {
@@ -136,11 +137,11 @@ struct BriefingView: View {
                                 }
                         }
                     }
-                    .padding()
+                    .padding(DesignTokens.Spacing.lg)
                 }
             }
         }
-        .background(Theme.offWhite)
+        .background(DesignTokens.Colors.surfacePrimary)
         .sheet(isPresented: $isWalking) {
             WalkModeView(items: sortedItems)
         }
@@ -156,21 +157,22 @@ struct BriefingCard: View {
     let goal: Goal
     
     var body: some View {
-        HStack {
+        HStack(spacing: DesignTokens.Spacing.md) {
             Image(systemName: goal.category.icon)
                 .foregroundStyle(goal.category.color)
-                .font(.title2)
-                .padding(.trailing, 8)
+                .font(DesignTokens.Typography.h3)
+                .frame(width: DesignTokens.IconSize.lg, height: DesignTokens.IconSize.lg)
             
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                 Text(goal.title)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+                    .font(DesignTokens.Typography.bodyLarge)
+                    .foregroundStyle(DesignTokens.Colors.textPrimary)
                 
                 if let description = goal.goalDescription, !description.isEmpty {
                     Text(description)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(DesignTokens.Typography.bodySmall)
+                        .foregroundStyle(DesignTokens.Colors.textSecondary)
+                        .lineLimit(2)
                 }
             }
             
@@ -178,13 +180,19 @@ struct BriefingCard: View {
             
             if goal.priority == .high {
                 Image(systemName: "exclamationmark.circle.fill")
-                    .foregroundStyle(.red)
+                    .foregroundStyle(DesignTokens.Colors.error)
+                    .font(DesignTokens.Typography.bodyMedium)
             }
         }
-        .padding()
-        .background(Theme.cardBackground)
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+        .padding(DesignTokens.Spacing.md)
+        .background(DesignTokens.Colors.surfaceElevated)
+        .cornerRadius(DesignTokens.CornerRadius.lg)
+        .shadow(
+            color: DesignTokens.Shadow.sm.color,
+            radius: DesignTokens.Shadow.sm.radius,
+            x: DesignTokens.Shadow.sm.x,
+            y: DesignTokens.Shadow.sm.y
+        )
     }
 }
 
@@ -336,9 +344,8 @@ struct DashboardHeaderView: View {
                     Image(systemName: "clock")
                     Text(currentDate.formatted(date: .complete, time: .shortened))
                 }
-                .font(.system(.subheadline, design: .monospaced))
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
+                .font(DesignTokens.Typography.bodyMedium)
+                .foregroundStyle(DesignTokens.Colors.textSecondary)
                 
                 Spacer()
                 
@@ -349,13 +356,14 @@ struct DashboardHeaderView: View {
                         ZStack(alignment: .trailing) {
                             // Invisible text to measure width
                             Text(userLocation.isEmpty ? "Location" : userLocation)
-                                .font(.system(.subheadline, design: .monospaced))
-                                .fontWeight(.medium)
+                                .font(DesignTokens.Typography.bodyMedium)
                                 .opacity(0)
                             
                             TextField("Location", text: $userLocation)
                                 .textFieldStyle(.plain)
                                 .multilineTextAlignment(.trailing)
+                                .font(DesignTokens.Typography.bodyMedium)
+                                .foregroundStyle(DesignTokens.Colors.textSecondary)
                                 .onSubmit {
                                     storedLocation = userLocation
                                     updateWeather()
@@ -369,9 +377,8 @@ struct DashboardHeaderView: View {
                         Text("\(currentWeather.description) \(currentWeather.temp)°F")
                     }
                 }
-                .font(.system(.caption, design: .monospaced))
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
+                .font(DesignTokens.Typography.bodySmall)
+                .foregroundStyle(DesignTokens.Colors.textSecondary)
             }
             .padding(.horizontal, 24)
         }

@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4420403B2F1771CA00935737 /* WhatsNextShared in Frameworks */ = {isa = PBXBuildFile; productRef = 4420403A2F1771CA00935737 /* WhatsNextShared */; };
+		446496A32F17935000DF3D93 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446496A22F17935000DF3D93 /* DesignTokens.swift */; };
+		446496A82F17937600DF3D93 /* SheetHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446496A62F17937600DF3D93 /* SheetHeader.swift */; };
+		446496A92F17937600DF3D93 /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446496A72F17937600DF3D93 /* SkeletonView.swift */; };
+		446496AA2F17937600DF3D93 /* ModernEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446496A52F17937600DF3D93 /* ModernEmptyState.swift */; };
+		446496AB2F17937600DF3D93 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446496A42F17937600DF3D93 /* Badge.swift */; };
 		E01234560001 /* WhatsNextApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550001 /* WhatsNextApp.swift */; };
 		E01234560002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550002 /* AppDelegate.swift */; };
 		E01234560003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550003 /* ContentView.swift */; };
@@ -42,7 +48,6 @@
 		E01234560055 /* GoalListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550055 /* GoalListViewModel.swift */; };
 		E01234560056 /* BriefingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550056 /* BriefingViewModel.swift */; };
 		E01234560057 /* ArchiveViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550057 /* ArchiveViewModel.swift */; };
-		4420403B2F1771CA00935737 /* WhatsNextShared in Frameworks */ = {isa = PBXBuildFile; productRef = 4420403A2F1771CA00935737 /* WhatsNextShared */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +61,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		446496A22F17935000DF3D93 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		446496A42F17937600DF3D93 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		446496A52F17937600DF3D93 /* ModernEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernEmptyState.swift; sourceTree = "<group>"; };
+		446496A62F17937600DF3D93 /* SheetHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetHeader.swift; sourceTree = "<group>"; };
+		446496A72F17937600DF3D93 /* SkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
 		44A456902F0EBE1200915D06 /* WhatsNextTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = WhatsNextTests.xctestplan; sourceTree = "<group>"; };
 		44A456952F0EBFD100915D06 /* WhatsNextTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WhatsNextTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E01234540001 /* WhatsNext.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhatsNext.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -185,6 +195,10 @@
 		E01234510006 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				446496A42F17937600DF3D93 /* Badge.swift */,
+				446496A52F17937600DF3D93 /* ModernEmptyState.swift */,
+				446496A62F17937600DF3D93 /* SheetHeader.swift */,
+				446496A72F17937600DF3D93 /* SkeletonView.swift */,
 				E01234550030 /* ToastView.swift */,
 				E01234550031 /* CheckboxToggleStyle.swift */,
 				E01234550032 /* EmptyStateView.swift */,
@@ -198,25 +212,6 @@
 				E01234550033 /* Assets.xcassets */,
 			);
 			path = Resources;
-			sourceTree = "<group>";
-		};
-		E01234510020 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				E01234550049 /* AnalyticsViewModel.swift */,
-				E01234550055 /* GoalListViewModel.swift */,
-				E01234550056 /* BriefingViewModel.swift */,
-				E01234550057 /* ArchiveViewModel.swift */,
-			);
-			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		E01234510021 /* Utilities */ = {
-			isa = PBXGroup;
-			children = (
-				E01234550050 /* AppState.swift */,
-			);
-			path = Utilities;
 			sourceTree = "<group>";
 		};
 		E01234510008 /* Main */ = {
@@ -324,6 +319,26 @@
 				E01234550042 /* NotesBrowserView.swift */,
 			);
 			path = Notes;
+			sourceTree = "<group>";
+		};
+		E01234510020 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				E01234550049 /* AnalyticsViewModel.swift */,
+				E01234550055 /* GoalListViewModel.swift */,
+				E01234550056 /* BriefingViewModel.swift */,
+				E01234550057 /* ArchiveViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		E01234510021 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				446496A22F17935000DF3D93 /* DesignTokens.swift */,
+				E01234550050 /* AppState.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -461,6 +476,10 @@
 				E01234560027 /* MenuBarView.swift in Sources */,
 				E01234560028 /* SettingsView.swift in Sources */,
 				E01234560030 /* ToastView.swift in Sources */,
+				446496A82F17937600DF3D93 /* SheetHeader.swift in Sources */,
+				446496A92F17937600DF3D93 /* SkeletonView.swift in Sources */,
+				446496AA2F17937600DF3D93 /* ModernEmptyState.swift in Sources */,
+				446496AB2F17937600DF3D93 /* Badge.swift in Sources */,
 				E01234560031 /* CheckboxToggleStyle.swift in Sources */,
 				E01234560032 /* EmptyStateView.swift in Sources */,
 				E01234560034 /* HelpView.swift in Sources */,
@@ -473,6 +492,7 @@
 				E01234560052 /* AnalyticsService.swift in Sources */,
 				E01234560053 /* TagService.swift in Sources */,
 				E01234560054 /* SyncService.swift in Sources */,
+				446496A32F17935000DF3D93 /* DesignTokens.swift in Sources */,
 				E01234560048 /* AnalyticsViewModel.swift in Sources */,
 				E01234560055 /* GoalListViewModel.swift in Sources */,
 				E01234560056 /* BriefingViewModel.swift in Sources */,

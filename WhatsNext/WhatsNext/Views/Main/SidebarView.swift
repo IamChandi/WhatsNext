@@ -222,10 +222,21 @@ struct SidebarView: View {
         }
         .listStyle(.sidebar)
         .scrollContentBackground(.hidden)
-        .background(Theme.ovalOfficeGradient)
+        .background {
+            ZStack {
+                // Base gradient
+                DesignTokens.Gradients.ovalOffice
+                    .ignoresSafeArea()
+
+                // Material overlay for modern glass effect
+                Rectangle()
+                    .fill(.ultraThinMaterial.opacity(0.3))
+                    .ignoresSafeArea()
+            }
+        }
         .frame(minWidth: 200)
-        .tint(Theme.sidebarText)
-        .foregroundStyle(Theme.sidebarText)
+        .tint(DesignTokens.Colors.textInverse)
+        .foregroundStyle(DesignTokens.Colors.textInverse)
         .environment(\.defaultMinListRowHeight, 28)
         .sheet(isPresented: $showingShutDown) {
             ShutDownView()
@@ -243,8 +254,13 @@ struct SidebarView: View {
     @ViewBuilder
     private func sidebarRowBackground(for item: SidebarItem) -> some View {
         if selection == item {
-            RoundedRectangle(cornerRadius: 6)
-                .fill(Color(red: 60/255, green: 120/255, blue: 200/255))
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
+                .fill(DesignTokens.Colors.accent.opacity(0.8))
+                .shadow(
+                    color: DesignTokens.Colors.accent.opacity(0.3),
+                    radius: 4,
+                    y: 2
+                )
         } else {
             Color.clear
         }

@@ -6,8 +6,8 @@ Shared code package for WhatsNext macOS and iOS applications.
 
 This Swift Package contains all shared code between the macOS and iOS versions of WhatsNext, including:
 
-- **Models**: SwiftData models (Goal, Note, Tag, etc.)
-- **Services**: Business logic services (GoalDataService, NotificationService, NoteService, etc.)
+- **Models**: SwiftData models (Goal, Note with archive support, Tag, etc.)
+- **Services**: Business logic services (GoalDataService, NotificationService, etc.)
 - **Utilities**: Common utilities (Logger, ErrorHandler, Constants, InputValidator, PaginationHelper, etc.)
 
 ## Features
@@ -19,6 +19,8 @@ This Swift Package contains all shared code between the macOS and iOS versions o
 - ✅ **Comprehensive logging** with categorized loggers
 - ✅ **CloudKit sync** support
 - ✅ **Type-safe enums** for categories, priorities, and statuses
+- ✅ **Archive functionality** for Note model (isArchived, archivedAt, archive/unarchive methods)
+- ✅ **Full model migration** - Both macOS and iOS apps use all models from this shared package
 
 ## Structure
 
@@ -76,12 +78,20 @@ Or in Xcode: **Product > Test** (⌘U)
 
 ## Migration Notes
 
+**✅ Migration Complete**: Both macOS and iOS apps have been fully migrated to use all models from this shared package. No duplicate model definitions exist.
+
 When migrating from duplicated code:
 
 1. Remove duplicate files from app targets
 2. Add WhatsNextShared package dependency
 3. Update imports from local files to `import WhatsNextShared`
-4. Test thoroughly on both platforms
+4. Update schema to explicitly use `WhatsNextShared.*` models
+5. Test thoroughly on both platforms
+
+**Note Model Features:**
+- Archive support: `isArchived` property and `archivedAt` timestamp
+- Archive methods: `archive()` and `unarchive()` for easy state management
+- Bidirectional goal linking: Notes can be linked to goals, and goals can reference notes
 
 ## Platform-Specific Code
 
