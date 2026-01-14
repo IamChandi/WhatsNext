@@ -1,5 +1,7 @@
 import Foundation
+import WhatsNextShared
 import SwiftData
+import WhatsNextShared
 
 /// Represents a user goal or task in the WhatsNext application.
 @Model
@@ -55,6 +57,10 @@ final class Goal {
     @Relationship(deleteRule: .cascade, inverse: \RecurrenceRule.goal)
     var recurrence: RecurrenceRule?
 
+    /// Notes associated with this goal. Cascades on deletion.
+    @Relationship(deleteRule: .cascade)
+    var notes: [Note]?
+
     /// The category this goal belongs to (e.g., Daily, Weekly).
     @Transient
     var category: GoalCategory {
@@ -109,6 +115,12 @@ final class Goal {
     @Transient
     var sortedAlerts: [GoalAlert] {
         (alerts ?? []).sorted { $0.scheduledDate < $1.scheduledDate }
+    }
+
+    /// Notes sorted by their updated date (most recent first).
+    @Transient
+    var sortedNotes: [Note] {
+        (notes ?? []).sorted { $0.updatedAt > $1.updatedAt }
     }
 
     init(

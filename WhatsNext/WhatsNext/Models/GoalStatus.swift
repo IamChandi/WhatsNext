@@ -1,4 +1,5 @@
 import Foundation
+import WhatsNextShared
 
 enum GoalStatus: String, Codable, CaseIterable {
     case pending = "pending"

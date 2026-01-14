@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WhatsNextShared
 
 struct GoalDetailInspector: View {
     @Environment(\.modelContext) private var modelContext
@@ -25,6 +26,11 @@ struct GoalDetailInspector: View {
 
                 // Subtasks
                 subtasksSection
+
+                Divider()
+
+                // Notes
+                notesSection
 
                 Divider()
 
@@ -86,7 +92,9 @@ struct GoalDetailInspector: View {
                 .textFieldStyle(.plain)
                 .onChange(of: goal.title) { _, _ in
                     goal.updatedAt = Date()
-                    try? modelContext.save()
+                    if !modelContext.saveWithErrorHandling() {
+                        ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalDetailInspector")
+                    }
                 }
 
             TextField("Add description...", text: Binding(
@@ -122,7 +130,9 @@ struct GoalDetailInspector: View {
                 .labelsHidden()
                 .onChange(of: goal.priority) { _, _ in
                     goal.updatedAt = Date()
-                    try? modelContext.save()
+                    if !modelContext.saveWithErrorHandling() {
+                        ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalDetailInspector")
+                    }
                 }
             }
 
@@ -140,7 +150,9 @@ struct GoalDetailInspector: View {
                 .labelsHidden()
                 .onChange(of: goal.category) { _, _ in
                     goal.updatedAt = Date()
-                    try? modelContext.save()
+                    if !modelContext.saveWithErrorHandling() {
+                        ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalDetailInspector")
+                    }
                 }
             }
 
@@ -157,7 +169,9 @@ struct GoalDetailInspector: View {
                     .labelsHidden()
                     .onChange(of: goal.dueDate) { _, _ in
                         goal.updatedAt = Date()
-                        try? modelContext.save()
+                        if !modelContext.saveWithErrorHandling() {
+                        ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalDetailInspector")
+                    }
                     }
 
                     Button(action: { goal.dueDate = nil; try? modelContext.save() }) {
@@ -168,7 +182,9 @@ struct GoalDetailInspector: View {
                 } else {
                     Button("Add Due Date") {
                         goal.dueDate = Date()
-                        try? modelContext.save()
+                        if !modelContext.saveWithErrorHandling() {
+                        ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalDetailInspector")
+                    }
                     }
                     .buttonStyle(.bordered)
                 }
@@ -223,6 +239,47 @@ struct GoalDetailInspector: View {
                         .onSubmit(addSubtask)
                 }
                 .padding(.vertical, 4)
+            }
+        }
+    }
+
+    @State private var showingNoteEditor = false
+    @State private var selectedNote: Note?
+    
+    private var notesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Notes")
+                    .font(.headline)
+                Spacer()
+                Button(action: { 
+                    selectedNote = nil
+                    showingNoteEditor = true 
+                }) {
+                    Image(systemName: "plus.circle")
+                }
+                .buttonStyle(.plain)
+            }
+
+            if goal.sortedNotes.isEmpty {
+                Text("No notes")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                VStack(spacing: 8) {
+                    ForEach(goal.sortedNotes) { note in
+                        NoteRowView(note: note)
+                            .onTapGesture {
+                                selectedNote = note
+                                showingNoteEditor = true
+                            }
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingNoteEditor) {
+            NoteEditorSheet(note: selectedNote, goal: goal) { note in
+                try? modelContext.save()
             }
         }
     }

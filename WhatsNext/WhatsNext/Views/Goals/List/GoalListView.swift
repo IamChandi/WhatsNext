@@ -1,30 +1,43 @@
 import SwiftUI
 import SwiftData
+import WhatsNextShared
 
-struct GoalListView: View {
+public struct GoalListView: View {
     @Environment(\.modelContext) private var modelContext
     let category: GoalCategory
     let searchText: String
     @Binding var selectedGoal: Goal?
 
-    @Query private var allGoals: [Goal]
-
+    // Use database-level filtering with predicates for optimal performance
+    // Note: @Query predicates can't be dynamic, so we filter searchText in computed property
+    @Query(
+        filter: #Predicate<Goal> { goal in
+            goal.statusRaw != "archived"
+        },
+        sort: [
+            SortDescriptor<Goal>(\.statusRaw),
+            SortDescriptor<Goal>(\.priorityRaw),
+            SortDescriptor<Goal>(\.sortOrder)
+        ]
+    ) var allGoals: [Goal]
+    
+    @State private var dataService: GoalDataService?
     @State private var showingNewGoalSheet = false
     @State private var draggedGoal: Goal?
+    
+    /// Public initializer - @Query properties are automatically injected by SwiftUI
+    public init(category: GoalCategory, searchText: String, selectedGoal: Binding<Goal?>) {
+        self.category = category
+        self.searchText = searchText
+        self._selectedGoal = selectedGoal
+    }
 
+    // Filter by category and search text (category filter at DB level via separate query would be better)
+    // For now, we filter category in memory but this is still better than filtering everything
     private var goals: [Goal] {
         allGoals
-            .filter { $0.category == category && $0.status != .archived }
+            .filter { $0.category == category }
             .filter { searchText.isEmpty || $0.title.localizedCaseInsensitiveContains(searchText) }
-            .sorted { lhs, rhs in
-                if lhs.isCompleted != rhs.isCompleted {
-                    return !lhs.isCompleted
-                }
-                if lhs.priority.sortOrder != rhs.priority.sortOrder {
-                    return lhs.priority.sortOrder < rhs.priority.sortOrder
-                }
-                return lhs.sortOrder < rhs.sortOrder
-            }
     }
 
     private var pendingGoals: [Goal] {
@@ -35,13 +48,17 @@ struct GoalListView: View {
         goals.filter { $0.isCompleted }
     }
 
-    var body: some View {
+    public var body: some View {
         ZStack {
             if goals.isEmpty {
+                let descriptionText = {
+                    let categoryName = category.displayName.lowercased().replacingOccurrences(of: "this ", with: "")
+                    return "Add a goal to get started on your tasks for this \(categoryName)."
+                }()
                 EmptyStateView(
                     icon: category.icon,
                     title: "No \(category.displayName) Goals",
-                    description: "Add a goal to get started on your tasks for this \(category.displayName.lowercased().replacingOccurrences(of: "this ", with: "")).",
+                    description: descriptionText,
                     actionTitle: "Add Goal",
                     action: { showingNewGoalSheet = true }
                 )
@@ -84,9 +101,15 @@ struct GoalListView: View {
         .sheet(isPresented: $showingNewGoalSheet) {
             GoalEditorSheet(category: category) { goal in
                 modelContext.insert(goal)
-                try? modelContext.save()
+                if !modelContext.saveWithErrorHandling() {
+                    ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalListView.saveGoal")
+                }
             }
         }
+        .onAppear {
+            dataService = GoalDataService(modelContext: modelContext)
+        }
+        .withErrorHandling()
         .dropDestination(for: String.self) { items, location in
             handleDrop(items: items)
         }
@@ -99,18 +122,25 @@ struct GoalListView: View {
         for (index, goal) in reorderedGoals.enumerated() {
             goal.sortOrder = index
         }
-        try? modelContext.save()
+        
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalListView.movePendingGoals")
+        }
     }
 
     private func handleDrop(items: [String]) -> Bool {
         guard let idString = items.first,
               let goalId = UUID(uuidString: idString),
-              let goal = allGoals.first(where: { $0.id == goalId }) else {
+              let goal = goals.first(where: { $0.id == goalId }) else {
             return false
         }
 
         goal.move(to: category)
-        try? modelContext.save()
+        
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalListView.handleDrop")
+        }
+        
         return true
     }
 }

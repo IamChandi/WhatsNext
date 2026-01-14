@@ -1,6 +1,6 @@
 # WhatsNext
 
-WhatsNext is a premium, modern goal-tracking application available for both **macOS** and **iOS**. Built with SwiftUI and SwiftData, it features a streamlined interface, natural language parsing for quick entry, and powerful organization tools to help you focus on what truly matters. Your goals sync seamlessly between devices using iCloud CloudKit.
+WhatsNext is a modern goal-tracking application available for both **macOS** and **iOS**. Built with SwiftUI and SwiftData, it features a streamlined interface, natural language parsing for quick entry, and powerful organization tools to help you focus on what truly matters. Your goals sync seamlessly between devices using iCloud CloudKit.
 
 ## Key Features
 
@@ -37,7 +37,10 @@ WhatsNext is a premium, modern goal-tracking application available for both **ma
 
 The project follows a modular architecture designed for maintainability and scalability:
 
-### Shared Components
+### Shared Package (`WhatsNextShared`)
+
+A Swift Package containing all shared code between macOS and iOS:
+
 - **Models**: SwiftData-powered models with CloudKit compatibility
   - `Goal`: Main goal/task entity
   - `Subtask`: Break down goals into smaller tasks
@@ -45,17 +48,26 @@ The project follows a modular architecture designed for maintainability and scal
   - `GoalAlert`: Reminders and notifications
   - `RecurrenceRule`: Recurring goal patterns
   - `HistoryEntry`: Track goal changes over time
-- **Services**: Platform-agnostic services
+  - `Note`: Rich text notes with bidirectional goal linking
+- **Services**: Platform-agnostic business logic
+  - `GoalDataService`: Optimized database queries with pagination
   - `NotificationService`: Handles local notifications
-  - Natural language parsing for quick entry
-- **Components**: Reusable UI components
-  - Badges, toggles, empty states, toast notifications
+  - `NaturalLanguageParser`: Parses natural language for quick goal entry
+- **Utilities**: Shared utilities and helpers
+  - `Logger`: Centralized logging system
+  - `ErrorHandler`: Structured error handling
+  - `InputValidator`: Input validation utilities
+  - `PaginationHelper`: Pagination state management
+  - `SearchDebouncer`: Search input debouncing
+  - `Constants`: Application-wide constants
+
+See [WhatsNextShared/README.md](WhatsNextShared/README.md) for detailed package documentation.
 
 ### Platform-Specific
 - **macOS Views**: `NavigationSplitView`, menu bar integration, global hotkeys
 - **iOS Views**: `TabView`, `NavigationStack`, touch-optimized controls
 - **ViewModels** (iOS): `GoalListViewModel`, `KanbanViewModel` for business logic separation
-- **Data Services** (iOS): `GoalDataService` for optimized SwiftData queries
+- **Platform Services**: Platform-specific services (e.g., `NoteService`, `TagService`, `SyncService` on macOS)
 
 ### Data Persistence
 - **SwiftData**: Modern data persistence framework
@@ -84,21 +96,28 @@ App1/
 ├── WhatsNext/                    # macOS App
 │   ├── WhatsNext.xcodeproj
 │   └── WhatsNext/
-│       ├── Models/               # SwiftData models
-│       ├── Views/               # SwiftUI views
-│       ├── Services/            # Business logic
+│       ├── Views/               # SwiftUI views (macOS-specific)
+│       ├── Services/            # Platform-specific services
 │       ├── Components/          # Reusable components
 │       └── Resources/            # Assets, icons
 │
 ├── WhatsNextiOSApp/             # iOS App
 │   ├── WhatsNextiOSApp.xcodeproj
 │   └── WhatsNextiOS/
-│       ├── Models/               # Shared SwiftData models
 │       ├── Views/               # iOS-specific views
 │       ├── ViewModels/          # MVVM view models
-│       ├── Services/            # Business logic
+│       ├── Services/            # Platform-specific services
 │       ├── Components/          # Reusable components
 │       └── Resources/           # Assets, icons
+│
+├── WhatsNextShared/              # Shared Swift Package
+│   ├── Package.swift
+│   ├── Sources/
+│   │   └── WhatsNextShared/
+│   │       ├── Models/          # SwiftData models
+│   │       ├── Services/        # Shared business logic
+│   │       └── Utilities/       # Shared utilities
+│   └── Tests/                   # Unit tests
 │
 └── README.md
 ```
@@ -187,6 +206,14 @@ Run tests with `⌘ + U` in Xcode.
 - ✅ Database-level filtering (10-50x faster queries)
 - ✅ Optimized Kanban board loading
 - ✅ Efficient data service layer
+- ✅ Pagination support for large datasets
+
+### Code Quality
+- ✅ Centralized logging system
+- ✅ Structured error handling
+- ✅ Input validation
+- ✅ Comprehensive test coverage
+- ✅ Shared package architecture for code reuse
 
 ## Development
 
@@ -201,6 +228,7 @@ Run tests with `⌘ + U` in Xcode.
 - **SwiftData**: Data persistence
 - **CloudKit**: iCloud sync
 - **UserNotifications**: Local notifications
+- **WhatsNextShared**: Local Swift Package containing shared models, services, and utilities
 
 ## License
 

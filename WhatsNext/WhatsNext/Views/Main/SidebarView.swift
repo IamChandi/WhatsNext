@@ -1,10 +1,12 @@
 import SwiftUI
 import SwiftData
+import WhatsNextShared
 
 enum SidebarItem: Hashable {
     case briefing
     case category(GoalCategory)
     case tags
+    case notes
     case archive
     case analytics
 }
@@ -153,6 +155,19 @@ struct SidebarView: View {
                     }
                     .tag(SidebarItem.tags)
                     .listRowBackground(sidebarRowBackground(for: .tags))
+
+                    HStack {
+                        Label {
+                            Text("Notes")
+                                .font(.body)
+                                .foregroundStyle(Theme.sidebarText)
+                        } icon: {
+                            Image(systemName: "note.text")
+                                .foregroundStyle(Theme.sidebarIcon)
+                        }
+                    }
+                    .tag(SidebarItem.notes)
+                    .listRowBackground(sidebarRowBackground(for: .notes))
 
                     HStack {
                         Label {

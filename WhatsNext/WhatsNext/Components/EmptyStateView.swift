@@ -1,4 +1,6 @@
 import SwiftUI
+import os.log
+import WhatsNextShared
 
 struct EmptyStateView: View {
     let icon: String
@@ -55,6 +57,6 @@ struct EmptyStateView: View {
         description: "Add your first goal to get started on your productivity journey",
         actionTitle: "Add Goal"
     ) {
-        print("Action tapped")
+        Logger.ui.debug("EmptyStateView action tapped")
     }
 }

@@ -1,35 +1,21 @@
 import SwiftUI
 import SwiftData
 import Charts
+import WhatsNextShared
 
 struct AnalyticsView: View {
     @Query private var goals: [Goal]
     @Query private var historyEntries: [HistoryEntry]
 
-    @State private var selectedTimeRange: TimeRange = .week
-
-    enum TimeRange: String, CaseIterable {
-        case day = "Today"
-        case week = "This Week"
-        case month = "This Month"
-        case quarter = "This Quarter"
-        
-        var dateComponent: Calendar.Component {
-            switch self {
-            case .day: return .day
-            case .week: return .weekOfYear
-            case .month: return .month
-            case .quarter: return .quarter
-            }
-        }
-    }
+    @StateObject private var viewModel = AnalyticsViewModel()
+    @State private var selectedTimeRange: AnalyticsViewModel.TimeRange = .week
 
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 // Time range picker
                 Picker("Time Range", selection: $selectedTimeRange) {
-                    ForEach(TimeRange.allCases, id: \.self) { range in
+                    ForEach(AnalyticsViewModel.TimeRange.allCases, id: \.self) { range in
                         Text(range.rawValue).tag(range)
                     }
                 }
@@ -45,7 +31,7 @@ struct AnalyticsView: View {
                 ], spacing: 16) {
                     StatCard(
                         title: "Completed",
-                        value: "\(scopedCompletedCount)",
+                        value: "\(viewModel.scopedCompletedCount)",
                         icon: "checkmark.circle.fill",
                         color: .green
                     )
@@ -59,14 +45,14 @@ struct AnalyticsView: View {
                     
                     StatCard(
                         title: "Completion Rate",
-                        value: "\(Int(scopedCompletionRate * 100))%",
+                        value: "\(Int(viewModel.scopedCompletionRate * 100))%",
                         icon: "chart.pie.fill",
                         color: .purple
                     )
 
                     StatCard(
                         title: "Current Streak",
-                        value: "\(currentStreak) days",
+                        value: "\(viewModel.currentStreak) days",
                         icon: "flame.fill",
                         color: .orange
                     )
@@ -103,7 +89,7 @@ struct AnalyticsView: View {
                 // Completion chart (Hide for Day view as it's less useful)
                 if selectedTimeRange != .day {
                     GroupBox("Completions Over Time") {
-                        Chart(completionData) { item in
+                        Chart(viewModel.completionData) { item in
                             BarMark(
                                 x: .value("Date", item.date, unit: .day),
                                 y: .value("Completed", item.count)
@@ -124,13 +110,13 @@ struct AnalyticsView: View {
 
                 // Category breakdown
                 GroupBox("Goals by Category (\(selectedTimeRange.rawValue))") {
-                    if scopedCategoryData.isEmpty || scopedCategoryData.allSatisfy({ $0.count == 0 }) {
+                    if viewModel.scopedCategoryData.isEmpty || viewModel.scopedCategoryData.allSatisfy({ $0.count == 0 }) {
                         Text("No data for this period")
                             .foregroundStyle(.secondary)
                             .padding()
                     } else {
                         HStack(spacing: 20) {
-                            Chart(scopedCategoryData, id: \.category) { item in
+                            Chart(viewModel.scopedCategoryData, id: \.category) { item in
                                 SectorMark(
                                     angle: .value("Count", item.count),
                                     innerRadius: .ratio(0.5),
@@ -142,7 +128,7 @@ struct AnalyticsView: View {
                             .frame(width: 150, height: 150)
 
                             VStack(alignment: .leading, spacing: 8) {
-                                ForEach(scopedCategoryData, id: \.category) { item in
+                                ForEach(viewModel.scopedCategoryData, id: \.category) { item in
                                     if item.count > 0 {
                                         HStack {
                                             Circle()
@@ -169,9 +155,18 @@ struct AnalyticsView: View {
         }
         .navigationTitle("Analytics")
         .background(Theme.offWhite)
+        .onAppear {
+            viewModel.updateAnalytics(goals: goals, timeRange: selectedTimeRange)
+        }
+        .onChange(of: selectedTimeRange) { _, newRange in
+            viewModel.updateAnalytics(goals: goals, timeRange: newRange)
+        }
+        .onChange(of: goals) { _, _ in
+            viewModel.updateAnalytics(goals: goals, timeRange: selectedTimeRange)
+        }
     }
 
-    // MARK: - Computed Properties
+    // MARK: - Computed Properties (for summary text only)
     
     // START DATE for the selected range
     private var rangeStartDate: Date {
@@ -215,105 +210,22 @@ struct AnalyticsView: View {
         }
     }
 
-    private var scopedCompletedCount: Int {
-        scopedGoals.count
-    }
-
-    private var scopedCompletionRate: Double {
-        // Rate = Completed in range / (Completed in range + Active created in range?)
-        // Simplified: Just shows completion count relative to total active + completed currently
-        // Better metric: % of goals DUE in this period that were completed?
-        // Let's stick to a simple proxy for now: Activity Rate
-        let totalActive = goals.filter { $0.status != .archived && $0.status != .completed }.count
-        let totalInScope = totalActive + scopedCompletedCount
-        guard totalInScope > 0 else { return 0 }
-        return Double(scopedCompletedCount) / Double(totalInScope)
-    }
-
-    private var currentStreak: Int {
-        // Global streak logic
-        let calendar = Calendar.current
-        var streak = 0
-        var date = calendar.startOfDay(for: Date())
-
-        while true {
-            let dayStart = date
-            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
-
-            let completedOnDay = goals.contains { goal in
-                if let completedAt = goal.completedAt {
-                    return completedAt >= dayStart && completedAt < dayEnd
-                }
-                return false
-            }
-
-            if completedOnDay {
-                streak += 1
-                date = calendar.date(byAdding: .day, value: -1, to: date)!
-            } else if streak == 0 {
-                // Check if anything completed yesterday (allow grace period)
-                date = calendar.date(byAdding: .day, value: -1, to: date)!
-            } else {
-                break
-            }
-
-            // Prevent infinite loop
-            if streak > 365 { break }
-        }
-
-        return streak
-    }
-
-    private var completionData: [DayCompletion] {
-        let calendar = Calendar.current
-        var data: [DayCompletion] = []
-        
-        // Populate based on range
-        let daysToShow: Int
-        switch selectedTimeRange {
-        case .day: daysToShow = 1
-        case .week: daysToShow = 7
-        case .month: daysToShow = 30
-        case .quarter: daysToShow = 90
-        }
-
-        for i in (0..<daysToShow).reversed() {
-            let date = calendar.date(byAdding: .day, value: -i, to: Date())!
-            let dayStart = calendar.startOfDay(for: date)
-            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
-
-            let count = goals.filter { goal in
-                if let completedAt = goal.completedAt {
-                    return completedAt >= dayStart && completedAt < dayEnd
-                }
-                return false
-            }.count
-
-            data.append(DayCompletion(date: dayStart, count: count))
-        }
-
-        return data
-    }
-    
-    private var scopedCategoryData: [CategoryCount] {
-        GoalCategory.allCases.map { category in
-            CategoryCount(
-                category: category,
-                count: scopedGoals.filter { $0.category == category }.count
-            )
-        }
-    }
-    
     private var summaryText: String {
-        if scopedGoals.isEmpty {
+        if viewModel.scopedCompletedCount == 0 {
             return "No activity recorded for \(selectedTimeRange.rawValue.lowercased())."
+        }
+        
+        // Get scoped goals for summary
+        let scopedGoals = goals.filter { goal in
+            guard let completedAt = goal.completedAt, goal.status == .completed else { return false }
+            return completedAt >= rangeStartDate && completedAt < rangeEndDate
         }
         
         let lines = scopedGoals.map { "- \($0.title) (\($0.category.shortName))" }
         return """
         ACTIVITY REPORT: \(selectedTimeRange.rawValue.uppercased())
         ----------------------------------------
-        Total Completed: \(scopedCompletedCount)
+        Total Completed: \(viewModel.scopedCompletedCount)
         
         COMPLETED ITEMS:
         \(lines.joined(separator: "\n"))
@@ -329,16 +241,7 @@ struct AnalyticsView: View {
 
 // MARK: - Supporting Types
 
-struct DayCompletion: Identifiable {
-    let id = UUID()
-    let date: Date
-    let count: Int
-}
-
-struct CategoryCount {
-    let category: GoalCategory
-    let count: Int
-}
+// DayCompletion and CategoryCount are now in AnalyticsViewModel
 
 struct StatCard: View {
     let title: String

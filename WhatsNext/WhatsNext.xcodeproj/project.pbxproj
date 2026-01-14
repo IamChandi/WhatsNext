@@ -12,17 +12,6 @@
 		E01234560003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550003 /* ContentView.swift */; };
 		E01234560004 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550004 /* SidebarView.swift */; };
 		E01234560005 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550005 /* DetailView.swift */; };
-		E01234560006 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550006 /* Goal.swift */; };
-		E01234560007 /* Subtask.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550007 /* Subtask.swift */; };
-		E01234560008 /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550008 /* Tag.swift */; };
-		E01234560009 /* GoalAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550009 /* GoalAlert.swift */; };
-		E01234560010 /* RecurrenceRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550010 /* RecurrenceRule.swift */; };
-		E01234560011 /* HistoryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550011 /* HistoryEntry.swift */; };
-		E01234560012 /* GoalCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550012 /* GoalCategory.swift */; };
-		E01234560013 /* Priority.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550013 /* Priority.swift */; };
-		E01234560014 /* GoalStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550014 /* GoalStatus.swift */; };
-		E01234560015 /* ViewMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550015 /* ViewMode.swift */; };
-		E01234560016 /* RecurrencePattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550016 /* RecurrencePattern.swift */; };
 		E01234560017 /* GoalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550017 /* GoalListView.swift */; };
 		E01234560018 /* GoalRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550018 /* GoalRowView.swift */; };
 		E01234560019 /* GoalDetailInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550019 /* GoalDetailInspector.swift */; };
@@ -35,12 +24,25 @@
 		E01234560026 /* TagListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550026 /* TagListView.swift */; };
 		E01234560027 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550027 /* MenuBarView.swift */; };
 		E01234560028 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550028 /* SettingsView.swift */; };
-		E01234560029 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550029 /* NotificationService.swift */; };
 		E01234560030 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550030 /* ToastView.swift */; };
 		E01234560031 /* CheckboxToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550031 /* CheckboxToggleStyle.swift */; };
 		E01234560032 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550032 /* EmptyStateView.swift */; };
 		E01234560033 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E01234550033 /* Assets.xcassets */; };
 		E01234560034 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550035 /* HelpView.swift */; };
+		E01234560037 /* NoteRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550038 /* NoteRowView.swift */; };
+		E01234560039 /* RichTextEditor_macOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550040 /* RichTextEditor_macOS.swift */; };
+		E01234560040 /* NoteEditorSheet_macOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550041 /* NoteEditorSheet_macOS.swift */; };
+		E01234560041 /* NotesBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550042 /* NotesBrowserView.swift */; };
+		E01234560048 /* AnalyticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550049 /* AnalyticsViewModel.swift */; };
+		E01234560050 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550050 /* AppState.swift */; };
+		E01234560051 /* NoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550051 /* NoteService.swift */; };
+		E01234560052 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550052 /* AnalyticsService.swift */; };
+		E01234560053 /* TagService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550053 /* TagService.swift */; };
+		E01234560054 /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550054 /* SyncService.swift */; };
+		E01234560055 /* GoalListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550055 /* GoalListViewModel.swift */; };
+		E01234560056 /* BriefingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550056 /* BriefingViewModel.swift */; };
+		E01234560057 /* ArchiveViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01234550057 /* ArchiveViewModel.swift */; };
+		4420403B2F1771CA00935737 /* WhatsNextShared in Frameworks */ = {isa = PBXBuildFile; productRef = 4420403A2F1771CA00935737 /* WhatsNextShared */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,17 +64,6 @@
 		E01234550003 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E01234550004 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		E01234550005 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
-		E01234550006 /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
-		E01234550007 /* Subtask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subtask.swift; sourceTree = "<group>"; };
-		E01234550008 /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
-		E01234550009 /* GoalAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalAlert.swift; sourceTree = "<group>"; };
-		E01234550010 /* RecurrenceRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurrenceRule.swift; sourceTree = "<group>"; };
-		E01234550011 /* HistoryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEntry.swift; sourceTree = "<group>"; };
-		E01234550012 /* GoalCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCategory.swift; sourceTree = "<group>"; };
-		E01234550013 /* Priority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Priority.swift; sourceTree = "<group>"; };
-		E01234550014 /* GoalStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalStatus.swift; sourceTree = "<group>"; };
-		E01234550015 /* ViewMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewMode.swift; sourceTree = "<group>"; };
-		E01234550016 /* RecurrencePattern.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurrencePattern.swift; sourceTree = "<group>"; };
 		E01234550017 /* GoalListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalListView.swift; sourceTree = "<group>"; };
 		E01234550018 /* GoalRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalRowView.swift; sourceTree = "<group>"; };
 		E01234550019 /* GoalDetailInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDetailInspector.swift; sourceTree = "<group>"; };
@@ -85,13 +76,25 @@
 		E01234550026 /* TagListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagListView.swift; sourceTree = "<group>"; };
 		E01234550027 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		E01234550028 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		E01234550029 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		E01234550030 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		E01234550031 /* CheckboxToggleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxToggleStyle.swift; sourceTree = "<group>"; };
 		E01234550032 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		E01234550033 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E01234550034 /* WhatsNext.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WhatsNext.entitlements; sourceTree = "<group>"; };
 		E01234550035 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		E01234550038 /* NoteRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRowView.swift; sourceTree = "<group>"; };
+		E01234550040 /* RichTextEditor_macOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichTextEditor_macOS.swift; sourceTree = "<group>"; };
+		E01234550041 /* NoteEditorSheet_macOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorSheet_macOS.swift; sourceTree = "<group>"; };
+		E01234550042 /* NotesBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesBrowserView.swift; sourceTree = "<group>"; };
+		E01234550049 /* AnalyticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsViewModel.swift; sourceTree = "<group>"; };
+		E01234550050 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		E01234550051 /* NoteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteService.swift; sourceTree = "<group>"; };
+		E01234550052 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+		E01234550053 /* TagService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagService.swift; sourceTree = "<group>"; };
+		E01234550054 /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
+		E01234550055 /* GoalListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalListViewModel.swift; sourceTree = "<group>"; };
+		E01234550056 /* BriefingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BriefingViewModel.swift; sourceTree = "<group>"; };
+		E01234550057 /* ArchiveViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -110,6 +113,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4420403B2F1771CA00935737 /* WhatsNextShared in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,11 +136,12 @@
 				E01234550001 /* WhatsNextApp.swift */,
 				E01234550002 /* AppDelegate.swift */,
 				E01234550034 /* WhatsNext.entitlements */,
-				E01234510003 /* Models */,
 				E01234510004 /* Views */,
 				E01234510005 /* Services */,
 				E01234510006 /* Components */,
 				E01234510007 /* Resources */,
+				E01234510020 /* ViewModels */,
+				E01234510021 /* Utilities */,
 			);
 			path = WhatsNext;
 			sourceTree = "<group>";
@@ -150,24 +155,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E01234510003 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				E01234550006 /* Goal.swift */,
-				E01234550007 /* Subtask.swift */,
-				E01234550008 /* Tag.swift */,
-				E01234550009 /* GoalAlert.swift */,
-				E01234550010 /* RecurrenceRule.swift */,
-				E01234550011 /* HistoryEntry.swift */,
-				E01234550012 /* GoalCategory.swift */,
-				E01234550013 /* Priority.swift */,
-				E01234550014 /* GoalStatus.swift */,
-				E01234550015 /* ViewMode.swift */,
-				E01234550016 /* RecurrencePattern.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
 		E01234510004 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -179,6 +166,7 @@
 				E01234510016 /* MenuBar */,
 				E01234510017 /* Settings */,
 				E01234510018 /* Help */,
+				E01234510019 /* Notes */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -186,7 +174,10 @@
 		E01234510005 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				E01234550029 /* NotificationService.swift */,
+				E01234550051 /* NoteService.swift */,
+				E01234550052 /* AnalyticsService.swift */,
+				E01234550053 /* TagService.swift */,
+				E01234550054 /* SyncService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -207,6 +198,25 @@
 				E01234550033 /* Assets.xcassets */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		E01234510020 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				E01234550049 /* AnalyticsViewModel.swift */,
+				E01234550055 /* GoalListViewModel.swift */,
+				E01234550056 /* BriefingViewModel.swift */,
+				E01234550057 /* ArchiveViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		E01234510021 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				E01234550050 /* AppState.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		E01234510008 /* Main */ = {
@@ -305,6 +315,17 @@
 			path = Help;
 			sourceTree = "<group>";
 		};
+		E01234510019 /* Notes */ = {
+			isa = PBXGroup;
+			children = (
+				E01234550038 /* NoteRowView.swift */,
+				E01234550040 /* RichTextEditor_macOS.swift */,
+				E01234550041 /* NoteEditorSheet_macOS.swift */,
+				E01234550042 /* NotesBrowserView.swift */,
+			);
+			path = Notes;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -344,6 +365,9 @@
 			dependencies = (
 			);
 			name = WhatsNext;
+			packageProductDependencies = (
+				4420403A2F1771CA00935737 /* WhatsNextShared */,
+			);
 			productName = WhatsNext;
 			productReference = E01234540001 /* WhatsNext.app */;
 			productType = "com.apple.product-type.application";
@@ -376,6 +400,9 @@
 				Base,
 			);
 			mainGroup = E01234500001;
+			packageReferences = (
+				442040392F1771CA00935737 /* XCLocalSwiftPackageReference "../WhatsNextShared" */,
+			);
 			productRefGroup = E01234510002 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -421,17 +448,6 @@
 				E01234560003 /* ContentView.swift in Sources */,
 				E01234560004 /* SidebarView.swift in Sources */,
 				E01234560005 /* DetailView.swift in Sources */,
-				E01234560006 /* Goal.swift in Sources */,
-				E01234560007 /* Subtask.swift in Sources */,
-				E01234560008 /* Tag.swift in Sources */,
-				E01234560009 /* GoalAlert.swift in Sources */,
-				E01234560010 /* RecurrenceRule.swift in Sources */,
-				E01234560011 /* HistoryEntry.swift in Sources */,
-				E01234560012 /* GoalCategory.swift in Sources */,
-				E01234560013 /* Priority.swift in Sources */,
-				E01234560014 /* GoalStatus.swift in Sources */,
-				E01234560015 /* ViewMode.swift in Sources */,
-				E01234560016 /* RecurrencePattern.swift in Sources */,
 				E01234560017 /* GoalListView.swift in Sources */,
 				E01234560018 /* GoalRowView.swift in Sources */,
 				E01234560019 /* GoalDetailInspector.swift in Sources */,
@@ -444,11 +460,23 @@
 				E01234560026 /* TagListView.swift in Sources */,
 				E01234560027 /* MenuBarView.swift in Sources */,
 				E01234560028 /* SettingsView.swift in Sources */,
-				E01234560029 /* NotificationService.swift in Sources */,
 				E01234560030 /* ToastView.swift in Sources */,
 				E01234560031 /* CheckboxToggleStyle.swift in Sources */,
 				E01234560032 /* EmptyStateView.swift in Sources */,
 				E01234560034 /* HelpView.swift in Sources */,
+				E01234560037 /* NoteRowView.swift in Sources */,
+				E01234560039 /* RichTextEditor_macOS.swift in Sources */,
+				E01234560040 /* NoteEditorSheet_macOS.swift in Sources */,
+				E01234560041 /* NotesBrowserView.swift in Sources */,
+				E01234560050 /* AppState.swift in Sources */,
+				E01234560051 /* NoteService.swift in Sources */,
+				E01234560052 /* AnalyticsService.swift in Sources */,
+				E01234560053 /* TagService.swift in Sources */,
+				E01234560054 /* SyncService.swift in Sources */,
+				E01234560048 /* AnalyticsViewModel.swift in Sources */,
+				E01234560055 /* GoalListViewModel.swift in Sources */,
+				E01234560056 /* BriefingViewModel.swift in Sources */,
+				E01234560057 /* ArchiveViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -650,7 +678,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "What's Next?";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Chandi Kodthiwada. All rights reserved.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -684,7 +712,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "What's Next?";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Chandi Kodthiwada. All rights reserved.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -728,6 +756,21 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		442040392F1771CA00935737 /* XCLocalSwiftPackageReference "../WhatsNextShared" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../WhatsNextShared;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4420403A2F1771CA00935737 /* WhatsNextShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 442040392F1771CA00935737 /* XCLocalSwiftPackageReference "../WhatsNextShared" */;
+			productName = WhatsNextShared;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E01234500002 /* Project object */;
 }

@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WhatsNextShared
 
 struct TagListView: View {
     @Environment(\.modelContext) private var modelContext
@@ -62,12 +63,16 @@ struct TagListView: View {
         .sheet(isPresented: $showingNewTagSheet) {
             TagEditorSheet { tag in
                 modelContext.insert(tag)
-                try? modelContext.save()
+                if !modelContext.saveWithErrorHandling() {
+                    ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "TagListView")
+                }
             }
         }
         .sheet(item: $editingTag) { tag in
             TagEditorSheet(existingTag: tag) { _ in
-                try? modelContext.save()
+                if !modelContext.saveWithErrorHandling() {
+                    ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "TagListView")
+                }
             }
         }
     }

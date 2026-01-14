@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WhatsNextShared
 
 struct MenuBarView: View {
     @Environment(\.modelContext) private var modelContext
@@ -43,8 +44,11 @@ struct MenuBarView: View {
             if showingQuickAdd {
                 QuickAddGoalForm { goal in
                     modelContext.insert(goal)
-                    try? modelContext.save()
-                    showingQuickAdd = false
+                    if !modelContext.saveWithErrorHandling() {
+                        ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "MenuBarView.createGoal")
+                    } else {
+                        showingQuickAdd = false
+                    }
                 }
 
                 Divider()
@@ -187,7 +191,9 @@ struct MenuBarGoalRow: View {
     private func toggleCompletion() {
         withAnimation {
             goal.toggleCompletion()
-            try? modelContext.save()
+            if !modelContext.saveWithErrorHandling() {
+                ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "MenuBarView.toggleCompletion")
+            }
         }
     }
 

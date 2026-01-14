@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WhatsNextShared
 
 struct AlertSchedulerSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -196,8 +197,11 @@ struct AlertSchedulerSheet: View {
             await NotificationService.shared.scheduleAlert(for: goal, alert: alert)
         }
 
-        try? modelContext.save()
-        dismiss()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "AlertSchedulerSheet.save")
+        } else {
+            dismiss()
+        }
     }
 
     private func deleteAlert(_ alert: GoalAlert) {
@@ -209,8 +213,10 @@ struct AlertSchedulerSheet: View {
         goal.alerts?.removeAll { $0.id == alert.id }
         modelContext.delete(alert)
         goal.updatedAt = Date()
-        try? modelContext.save()
-    }
+            if !modelContext.saveWithErrorHandling() {
+                ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "AlertSchedulerSheet.delete")
+            }
+        }
 }
 
 struct PresetButton: View {

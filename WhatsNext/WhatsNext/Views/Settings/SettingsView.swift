@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import UserNotifications
+import WhatsNextShared
 
 struct SettingsView: View {
     var body: some View {

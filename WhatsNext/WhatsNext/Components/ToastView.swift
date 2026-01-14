@@ -1,4 +1,5 @@
 import SwiftUI
+import WhatsNextShared
 
 struct Toast: Equatable {
     enum ToastType {

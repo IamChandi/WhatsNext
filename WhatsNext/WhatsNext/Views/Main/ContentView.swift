@@ -9,6 +9,7 @@
 
 import SwiftUI
 import SwiftData
+import WhatsNextShared
 
 struct DetailLayout: View {
     let sidebarItem: SidebarItem?
@@ -79,7 +80,7 @@ struct QuickEntryField: View {
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
         .padding(.horizontal)
-        .onReceive(NotificationCenter.default.publisher(for: .focusQuickEntry)) { _ in
+        .onChange(of: AppState.shared.focusQuickEntry) { _, _ in
             isFocused = true
         }
     }
@@ -108,16 +109,20 @@ struct QuickEntryField: View {
         )
 
         modelContext.insert(goal)
-        try? modelContext.save()
-        text = ""
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "QuickEntryField.createGoal")
+        } else {
+            text = ""
+        }
         
         // Haptic feedback or toast could be added here
-        NotificationCenter.default.post(name: .goalsUpdated, object: nil)
+        AppState.shared.notifyGoalsUpdated()
     }
 }
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @StateObject private var appState = AppState.shared
     @State private var selectedCategory: GoalCategory? = .daily
     @State private var selectedSidebarItem: SidebarItem? = .category(.daily)
     @State private var selectedGoal: Goal?
@@ -166,7 +171,10 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            columnVisibility = isSidebarPinned ? .all : .detailOnly
+            // Defer state modification to avoid "Modifying state during view update" warning
+            Task { @MainActor in
+                columnVisibility = isSidebarPinned ? .all : .detailOnly
+            }
             // Activate window to show blue selection highlight immediately
             DispatchQueue.main.async {
                 NSApp.activate(ignoringOtherApps: true)
@@ -174,7 +182,7 @@ struct ContentView: View {
             }
             // Ensure focus is on the entry field on launch
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                NotificationCenter.default.post(name: .focusQuickEntry, object: nil)
+                AppState.shared.focusQuickEntryField()
             }
         }
         .toolbar {
@@ -193,15 +201,17 @@ struct ContentView: View {
                 category: selectedCategory ?? .daily,
                 onSave: { goal in
                     modelContext.insert(goal)
-                    try? modelContext.save()
+                    if !modelContext.saveWithErrorHandling() {
+                        ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "ContentView.createGoal")
+                    }
                 }
             )
         }
-        .onReceive(NotificationCenter.default.publisher(for: .newGoal)) { _ in
+        .onChange(of: appState.newGoalCreated) { _, _ in
             showingNewGoalSheet = true
         }
-        .onReceive(NotificationCenter.default.publisher(for: .switchViewMode)) { notification in
-            if let mode = notification.object as? ViewMode {
+        .onChange(of: appState.viewMode) { _, mode in
+            if let mode = mode {
                 viewMode = mode
             }
         }
@@ -214,8 +224,8 @@ struct ContentView: View {
                 selectedCategory = cat
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .showHelp)) { _ in
-            showingHelp = true
+        .onChange(of: appState.showHelp) { _, show in
+            showingHelp = show
         }
         .sheet(isPresented: $showingHelp) {
             HelpView()

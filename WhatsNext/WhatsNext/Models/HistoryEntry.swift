@@ -1,5 +1,7 @@
 import Foundation
+import WhatsNextShared
 import SwiftData
+import WhatsNextShared
 
 enum HistoryAction: String, Codable {
     case created

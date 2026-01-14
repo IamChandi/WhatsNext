@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WhatsNextShared
 
 struct GoalEditorSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -233,8 +234,11 @@ struct GoalEditorSheet: View {
             // Update tags
             existingGoal.tags = allTags.filter { selectedTags.contains($0.id) }
 
-            try? modelContext.save()
-            dismiss()
+            if !modelContext.saveWithErrorHandling() {
+                ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalEditorSheet.save")
+            } else {
+                dismiss()
+            }
         } else {
             // Create new goal
             let goal = Goal(

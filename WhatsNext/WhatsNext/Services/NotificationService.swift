@@ -1,6 +1,8 @@
 import Foundation
 import UserNotifications
 import SwiftData
+import os.log
+import WhatsNextShared
 
 /// Defines the configuration for a goal parsed from natural language.
 struct GoalConfig {
@@ -49,8 +51,8 @@ struct NaturalLanguageParser {
 final class NotificationService {
     static let shared = NotificationService()
 
-    private let morningHour = 9  // 9:00 AM
-    private let eveningHour = 20 // 8:00 PM EST
+    private let morningHour = AppConstants.Notifications.morningHour
+    private let eveningHour = AppConstants.Notifications.eveningHour
 
     private init() {
         setupNotificationCategories()
@@ -143,8 +145,10 @@ final class NotificationService {
 
         do {
             try await UNUserNotificationCenter.current().add(request)
+            Logger.notifications.info("✅ Morning reminder scheduled successfully")
         } catch {
-            print("Failed to schedule morning reminder: \(error)")
+            Logger.notifications.error("❌ Failed to schedule morning reminder: \(error.localizedDescription)")
+            ErrorHandler.shared.handle(.notificationFailed(error), context: "scheduleMorningReminder")
         }
     }
 
@@ -172,8 +176,10 @@ final class NotificationService {
 
         do {
             try await UNUserNotificationCenter.current().add(request)
+            Logger.notifications.info("✅ Evening reminder scheduled successfully")
         } catch {
-            print("Failed to schedule evening reminder: \(error)")
+            Logger.notifications.error("❌ Failed to schedule evening reminder: \(error.localizedDescription)")
+            ErrorHandler.shared.handle(.notificationFailed(error), context: "scheduleEveningReminder")
         }
     }
 
@@ -209,8 +215,10 @@ final class NotificationService {
             }
 
             try context.save()
+            Logger.data.info("✅ Moved unfinished daily goals to tomorrow")
         } catch {
-            print("Failed to move unfinished goals: \(error)")
+            Logger.data.error("❌ Failed to move unfinished goals: \(error.localizedDescription)")
+            ErrorHandler.shared.handle(.saveFailed(error), context: "moveUnfinishedDailyGoalsToTomorrow")
         }
     }
 
@@ -220,9 +228,10 @@ final class NotificationService {
         do {
             let granted = try await UNUserNotificationCenter.current()
                 .requestAuthorization(options: [.alert, .sound, .badge])
+            Logger.notifications.info("Notification permission granted: \(granted)")
             return granted
         } catch {
-            print("Notification permission error: \(error)")
+            Logger.notifications.error("❌ Notification permission error: \(error.localizedDescription)")
             return false
         }
     }
@@ -271,8 +280,10 @@ final class NotificationService {
         do {
             try await UNUserNotificationCenter.current().add(request)
             alert.notificationIdentifier = identifier
+            Logger.notifications.info("✅ Scheduled notification for goal: \(goal.title)")
         } catch {
-            print("Failed to schedule notification: \(error)")
+            Logger.notifications.error("❌ Failed to schedule notification: \(error.localizedDescription)")
+            ErrorHandler.shared.handle(.notificationFailed(error), context: "scheduleAlert")
         }
     }
 
@@ -304,7 +315,7 @@ final class NotificationService {
         await scheduleAlert(for: goal, alert: alert)
     }
 
-    func snoozeAlert(for goal: Goal, alert: GoalAlert, minutes: Int = 15) async {
+    func snoozeAlert(for goal: Goal, alert: GoalAlert, minutes: Int = AppConstants.Notifications.snoozeMinutes) async {
         let newDate = Date().addingTimeInterval(Double(minutes * 60))
         await rescheduleAlert(for: goal, alert: alert, newDate: newDate)
     }
@@ -341,8 +352,10 @@ final class NotificationService {
 
         do {
             try await UNUserNotificationCenter.current().add(request)
+            Logger.notifications.info("✅ Scheduled due date reminder for goal: \(goal.title)")
         } catch {
-            print("Failed to schedule due date reminder: \(error)")
+            Logger.notifications.error("❌ Failed to schedule due date reminder: \(error.localizedDescription)")
+            ErrorHandler.shared.handle(.notificationFailed(error), context: "scheduleDueDateReminder")
         }
     }
 

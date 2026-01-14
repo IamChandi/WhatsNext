@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WhatsNextShared
 
 struct RecurrencePickerSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -250,8 +251,11 @@ struct RecurrencePickerSheet: View {
         goal.recurrence = recurrence
         goal.updatedAt = Date()
 
-        try? modelContext.save()
-        dismiss()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "RecurrencePickerSheet.save")
+        } else {
+            dismiss()
+        }
     }
 
     private func removeRecurrence() {
@@ -259,7 +263,9 @@ struct RecurrencePickerSheet: View {
             modelContext.delete(recurrence)
             goal.recurrence = nil
             goal.updatedAt = Date()
-            try? modelContext.save()
+            if !modelContext.saveWithErrorHandling() {
+                ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "RecurrencePickerSheet.removeRecurrence")
+            }
         }
         dismiss()
     }

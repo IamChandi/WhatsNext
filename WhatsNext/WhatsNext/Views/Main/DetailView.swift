@@ -1,6 +1,8 @@
 import SwiftUI
 import SwiftData
 import CoreLocation
+import os.log
+import WhatsNextShared
 
 struct DetailView: View {
     let sidebarItem: SidebarItem?
@@ -37,6 +39,9 @@ struct DetailView: View {
                 case .tags:
                     TagListView()
 
+                case .notes:
+                    NotesBrowserView()
+
                 case .archive:
                     ArchiveView(selectedGoal: $selectedGoal)
 
@@ -58,28 +63,30 @@ struct DetailView: View {
 }
 
 struct BriefingView: View {
-    @Query(filter: #Predicate<Goal> { goal in
-        goal.statusRaw != "archived" && goal.statusRaw != "completed"
-    }, sort: \Goal.createdAt)
-    private var allActiveItems: [Goal]
+    @Environment(\.modelContext) private var modelContext
     
     @Binding var selectedGoal: Goal?
     @State private var isWalking = false
+    @State private var dataService: GoalDataService?
+    @State private var sortedItems: [Goal] = []
     
-    // Sort items: Daily first, then High Priority Weekly
-    var sortedItems: [Goal] {
-        let briefingItems = allActiveItems.filter { goal in
-            goal.categoryRaw == "daily" || (goal.categoryRaw == "weekly" && goal.priorityRaw == "high")
-        }
-        
-        return briefingItems.sorted {
-            if $0.category == .daily && $1.category != .daily {
-                return true
+    private func updateBriefingGoals() {
+        guard let dataService = dataService else { return }
+        do {
+            let briefingGoals = try dataService.fetchBriefingGoals()
+            // Sort: Daily first, then High Priority Weekly
+            sortedItems = briefingGoals.sorted {
+                if $0.category == .daily && $1.category != .daily {
+                    return true
+                }
+                if $0.category != .daily && $1.category == .daily {
+                    return false
+                }
+                return $0.createdAt < $1.createdAt
             }
-            if $0.category != .daily && $1.category == .daily {
-                return false
-            }
-            return $0.createdAt < $1.createdAt
+        } catch {
+            Logger.data.error("Failed to fetch briefing goals: \(error.localizedDescription)")
+            ErrorHandler.shared.handle(.fetchFailed(error), context: "BriefingView.updateBriefingGoals")
         }
     }
 
@@ -137,6 +144,11 @@ struct BriefingView: View {
         .sheet(isPresented: $isWalking) {
             WalkModeView(items: sortedItems)
         }
+        .onAppear {
+            dataService = GoalDataService(modelContext: modelContext)
+            updateBriefingGoals()
+        }
+        .withErrorHandling()
     }
 }
 
@@ -298,7 +310,9 @@ struct WalkModeView: View {
         if let item = currentItem {
             item.status = .completed
             item.completedAt = Date()
-            try? modelContext.save()
+            if !modelContext.saveWithErrorHandling() {
+                ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "DetailView.WalkModeView")
+            }
             
             withAnimation {
                 currentIndex += 1
@@ -374,8 +388,11 @@ struct DashboardHeaderView: View {
             currentDate = input
         }
         .onAppear {
-            userLocation = storedLocation
-            updateWeather()
+            // Defer state modification to avoid "Modifying state during view update" warning
+            Task { @MainActor in
+                userLocation = storedLocation
+                updateWeather()
+            }
         }
     }
     
@@ -390,7 +407,7 @@ struct DashboardHeaderView: View {
         CLGeocoder().geocodeAddressString(location) { placemarks, error in
             guard let location = placemarks?.first?.location else {
                 if let error = error {
-                    print("Geocoding error: \(error.localizedDescription)")
+                    Logger.network.error("Geocoding error: \(error.localizedDescription)")
                 }
                 DispatchQueue.main.async {
                     currentWeather = .init(description: "Not Found", temp: 0, icon: "location.slash")
@@ -407,7 +424,7 @@ struct DashboardHeaderView: View {
             
             URLSession.shared.dataTask(with: url) { data, response, error in
                 if let error = error {
-                    print("Weather fetch error: \(error.localizedDescription)")
+                    Logger.network.error("Weather fetch error: \(error.localizedDescription)")
                     return
                 }
                 
@@ -425,7 +442,7 @@ struct DashboardHeaderView: View {
                         }
                     }
                 } catch {
-                    print("Weather parsing error: \(error)")
+                    Logger.network.error("Weather parsing error: \(error.localizedDescription)")
                 }
             }.resume()
         }

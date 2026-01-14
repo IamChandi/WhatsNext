@@ -1,5 +1,7 @@
 import Foundation
+import WhatsNextShared
 import SwiftData
+import WhatsNextShared
 
 @Model
 final class GoalAlert {

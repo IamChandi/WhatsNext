@@ -9,6 +9,8 @@
 
 import SwiftUI
 import SwiftData
+import os.log
+import WhatsNextShared
 
 /// Defines the color palette and styling constants for the WhatsNext application.
 struct Theme {
@@ -54,11 +56,12 @@ struct WhatsNextApp: App {
             Tag.self,
             GoalAlert.self,
             RecurrenceRule.self,
-            HistoryEntry.self
+            HistoryEntry.self,
+            Note.self
         ])
         
         // Try CloudKit first (since user has paid account)
-        print("🔍 Attempting to create ModelContainer with CloudKit...")
+        Logger.app.info("🔍 Attempting to create ModelContainer with CloudKit...")
         let cloudKitConfiguration = ModelConfiguration(
             schema: schema,
             cloudKitDatabase: .automatic
@@ -69,11 +72,12 @@ struct WhatsNextApp: App {
                 for: schema,
                 configurations: [cloudKitConfiguration]
             )
-            print("✅ ModelContainer created successfully with CloudKit")
+            Logger.app.info("✅ ModelContainer created successfully with CloudKit")
+            Logger.network.info("📱 CloudKit sync enabled - data will sync across devices")
             return container
         } catch let cloudKitError {
-            print("❌ CloudKit failed: \(cloudKitError)")
-            print("⚠️ Falling back to local storage...")
+            Logger.error.error("❌ CloudKit failed: \(cloudKitError.localizedDescription)")
+            Logger.app.info("⚠️ Falling back to local storage...")
             
             // Fallback to local storage if CloudKit fails
             let fallbackConfiguration = ModelConfiguration(
@@ -86,22 +90,21 @@ struct WhatsNextApp: App {
                     for: schema,
                     configurations: [fallbackConfiguration]
                 )
-                print("✅ ModelContainer created successfully with local storage")
+                Logger.app.info("✅ ModelContainer created successfully with local storage")
                 return container
             } catch let localError {
-            print("❌ Local storage failed: \(localError)")
+            Logger.error.error("❌ Local storage failed: \(localError.localizedDescription)")
             if let nsError = localError as NSError? {
-                print("   Domain: \(nsError.domain), Code: \(nsError.code)")
-                print("   UserInfo: \(nsError.userInfo)")
+                Logger.error.error("   Domain: \(nsError.domain), Code: \(nsError.code)")
+                Logger.error.error("   UserInfo: \(nsError.userInfo)")
                 if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError {
-                    print("   Underlying error: \(underlyingError)")
-                    print("   Underlying domain: \(underlyingError.domain), code: \(underlyingError.code)")
-                    print("   Underlying userInfo: \(underlyingError.userInfo)")
+                    Logger.error.error("   Underlying error: \(underlyingError.localizedDescription)")
+                    Logger.error.error("   Underlying domain: \(underlyingError.domain), code: \(underlyingError.code)")
                 }
             }
             
             // Try in-memory as last resort
-            print("⚠️ Attempting in-memory fallback...")
+            Logger.app.info("⚠️ Attempting in-memory fallback...")
             do {
                 let inMemoryConfiguration = ModelConfiguration(
                     schema: schema,
@@ -111,26 +114,22 @@ struct WhatsNextApp: App {
                     for: schema,
                     configurations: [inMemoryConfiguration]
                 )
-                print("✅ ModelContainer created with in-memory storage (data will not persist)")
+                Logger.app.warning("✅ ModelContainer created with in-memory storage (data will not persist)")
                 return inMemoryContainer
             } catch let inMemoryError {
-                print("❌ In-memory also failed: \(inMemoryError)")
+                Logger.error.error("❌ In-memory also failed: \(inMemoryError.localizedDescription)")
                 if let nsError = inMemoryError as NSError? {
-                    print("   Domain: \(nsError.domain), Code: \(nsError.code)")
-                    print("   UserInfo: \(nsError.userInfo)")
+                    Logger.error.error("   Domain: \(nsError.domain), Code: \(nsError.code)")
+                    Logger.error.error("   UserInfo: \(nsError.userInfo)")
                 }
                 
-                // Print all diagnostic information before crashing
-                print("\n" + String(repeating: "=", count: 60))
-                print("❌ CRITICAL: All storage options failed!")
-                print(String(repeating: "=", count: 60))
-                print("\nPlease check the console output above to see which model failed.")
-                print("Look for lines starting with '❌' to identify the problematic model.")
-                print("\nCommon fixes:")
-                print("1. Delete any existing database files")
-                print("2. Check for unsupported property types in models")
-                print("3. Verify all relationships are properly configured")
-                print(String(repeating: "=", count: 60) + "\n")
+                // Log all diagnostic information before crashing
+                Logger.error.critical("❌ CRITICAL: All storage options failed!")
+                Logger.error.critical("Please check the console output above to see which model failed.")
+                Logger.error.critical("Common fixes:")
+                Logger.error.critical("1. Delete any existing database files")
+                Logger.error.critical("2. Check for unsupported property types in models")
+                Logger.error.critical("3. Verify all relationships are properly configured")
                 
                 fatalError("Could not create ModelContainer. See console output above for details.")
             }
@@ -166,7 +165,7 @@ struct AppCommands: Commands {
     var body: some Commands {
         CommandGroup(after: .newItem) {
             Button("New Goal") {
-                NotificationCenter.default.post(name: .newGoal, object: nil)
+                AppState.shared.notifyNewGoalCreated()
             }
             .keyboardShortcut("n", modifiers: .command)
 
@@ -175,53 +174,53 @@ struct AppCommands: Commands {
 
         CommandMenu("Goals") {
             Button("Move to Daily") {
-                NotificationCenter.default.post(name: .moveToCategory, object: GoalCategory.daily)
+                AppState.shared.moveToCategory(.daily)
             }
             .keyboardShortcut("1", modifiers: [.command, .shift])
 
             Button("Move to Weekly") {
-                NotificationCenter.default.post(name: .moveToCategory, object: GoalCategory.weekly)
+                AppState.shared.moveToCategory(.weekly)
             }
             .keyboardShortcut("2", modifiers: [.command, .shift])
 
             Button("Move to Monthly") {
-                NotificationCenter.default.post(name: .moveToCategory, object: GoalCategory.monthly)
+                AppState.shared.moveToCategory(.monthly)
             }
             .keyboardShortcut("3", modifiers: [.command, .shift])
 
             Button("Move to What's Next?") {
-                NotificationCenter.default.post(name: .moveToCategory, object: GoalCategory.whatsNext)
+                AppState.shared.moveToCategory(.whatsNext)
             }
             .keyboardShortcut("4", modifiers: [.command, .shift])
 
             Divider()
 
             Button("Toggle Completion") {
-                NotificationCenter.default.post(name: .toggleCompletion, object: nil)
+                AppState.shared.toggleGoalCompletion()
             }
             .keyboardShortcut(.return, modifiers: .command)
 
             Button("Focus Mode") {
-                NotificationCenter.default.post(name: .toggleFocusMode, object: nil)
+                AppState.shared.toggleFocusModeAction()
             }
             .keyboardShortcut("f", modifiers: [.command, .shift])
         }
 
         CommandMenu("View") {
             Button("List View") {
-                NotificationCenter.default.post(name: .switchViewMode, object: ViewMode.checklist)
+                AppState.shared.switchToViewMode(.checklist)
             }
             .keyboardShortcut("l", modifiers: [.command, .control])
 
             Button("Board View") {
-                NotificationCenter.default.post(name: .switchViewMode, object: ViewMode.kanban)
+                AppState.shared.switchToViewMode(.kanban)
             }
             .keyboardShortcut("b", modifiers: [.command, .control])
         }
         
         CommandGroup(replacing: .help) {
             Button("What's Next? Help") {
-                NotificationCenter.default.post(name: .showHelp, object: nil)
+                AppState.shared.showHelpView()
             }
             .keyboardShortcut("?", modifiers: .command)
             

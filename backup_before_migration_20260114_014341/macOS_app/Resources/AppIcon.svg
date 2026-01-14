@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a365d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2c5282;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f6ad55;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ed8936;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="checkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background - Presidential Blue (West Wing inspired) -->
+  <rect x="0" y="0" width="1024" height="1024" rx="220" ry="220" fill="url(#bgGradient)"/>
+
+  <!-- Motion lines (suggesting "What's Next?" forward momentum) -->
+  <g opacity="0.3" stroke="#ffffff" stroke-width="8" stroke-linecap="round">
+    <line x1="180" y1="380" x2="280" y2="380"/>
+    <line x1="150" y1="460" x2="300" y2="460"/>
+    <line x1="180" y1="540" x2="280" y2="540"/>
+  </g>
+
+  <!-- Checkmark with forward arrow (symbolizing completing tasks and moving forward) -->
+  <g transform="translate(320, 280)">
+    <!-- Main checkmark -->
+    <path d="M 80 220 L 180 320 L 400 100"
+          fill="none"
+          stroke="url(#checkGradient)"
+          stroke-width="64"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+
+    <!-- Arrow head (What's Next? - moving forward) -->
+    <path d="M 360 60 L 420 100 L 360 140"
+          fill="none"
+          stroke="url(#accentGradient)"
+          stroke-width="48"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+  </g>
+
+  <!-- Subtle "next" indicator dots at bottom -->
+  <g fill="url(#accentGradient)">
+    <circle cx="440" cy="780" r="20"/>
+    <circle cx="512" cy="780" r="20"/>
+    <circle cx="584" cy="780" r="20" opacity="0.5"/>
+  </g>
+
+</svg>

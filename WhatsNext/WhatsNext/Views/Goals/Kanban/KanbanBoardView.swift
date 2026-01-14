@@ -1,34 +1,45 @@
 import SwiftUI
 import SwiftData
+import WhatsNextShared
 
-struct KanbanBoardView: View {
+public struct KanbanBoardView: View {
     @Environment(\.modelContext) private var modelContext
     let initialCategory: GoalCategory
     let searchText: String
     @Binding var selectedGoal: Goal?
 
-    @Query private var allGoals: [Goal]
+    // Use database-level filtering - fetch all non-archived goals
+    @Query(
+        filter: #Predicate<Goal> { goal in
+            goal.statusRaw != "archived"
+        },
+        sort: [
+            SortDescriptor<Goal>(\.categoryRaw),
+            SortDescriptor<Goal>(\.statusRaw),
+            SortDescriptor<Goal>(\.priorityRaw),
+            SortDescriptor<Goal>(\.sortOrder)
+        ]
+    ) var allGoals: [Goal]
 
     @State private var draggedGoal: Goal?
     @State private var showingNewGoalSheet = false
     @State private var newGoalCategory: GoalCategory = .daily
-
-    private func goalsFor(category: GoalCategory) -> [Goal] {
-        allGoals
-            .filter { $0.category == category && $0.status != .archived }
-            .filter { searchText.isEmpty || $0.title.localizedCaseInsensitiveContains(searchText) }
-            .sorted { lhs, rhs in
-                if lhs.isCompleted != rhs.isCompleted {
-                    return !lhs.isCompleted
-                }
-                if lhs.priority.sortOrder != rhs.priority.sortOrder {
-                    return lhs.priority.sortOrder < rhs.priority.sortOrder
-                }
-                return lhs.sortOrder < rhs.sortOrder
-            }
+    
+    /// Public initializer - @Query properties are automatically injected by SwiftUI
+    public init(initialCategory: GoalCategory, searchText: String, selectedGoal: Binding<Goal?>) {
+        self.initialCategory = initialCategory
+        self.searchText = searchText
+        self._selectedGoal = selectedGoal
     }
 
-    var body: some View {
+    // Filter by category and search - category filtering happens in memory but goals are pre-sorted
+    private func goalsFor(category: GoalCategory) -> [Goal] {
+        allGoals
+            .filter { $0.category == category }
+            .filter { searchText.isEmpty || $0.title.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    public var body: some View {
         ScrollView(.horizontal, showsIndicators: true) {
             HStack(alignment: .top, spacing: 16) {
                 ForEach(GoalCategory.allCases) { category in
@@ -54,15 +65,20 @@ struct KanbanBoardView: View {
         .sheet(isPresented: $showingNewGoalSheet) {
             GoalEditorSheet(category: newGoalCategory) { goal in
                 modelContext.insert(goal)
-                try? modelContext.save()
+                if !modelContext.saveWithErrorHandling() {
+                    ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "KanbanBoardView.saveGoal")
+                }
             }
         }
+        .withErrorHandling()
     }
 
     private func moveGoal(_ goal: Goal, to category: GoalCategory) {
-        withAnimation(.easeInOut(duration: 0.2)) {
+        withAnimation(.easeInOut(duration: AppConstants.Animation.quick)) {
             goal.move(to: category)
-            try? modelContext.save()
+            if !modelContext.saveWithErrorHandling() {
+                ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "KanbanBoardView.moveGoal")
+            }
         }
     }
 }
@@ -346,34 +362,49 @@ struct KanbanCardView: View {
     }
 
     private func toggleCompletion() {
-        withAnimation { goal.toggleCompletion(); try? modelContext.save() }
+        withAnimation {
+            goal.toggleCompletion()
+            if !modelContext.saveWithErrorHandling() {
+                ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "KanbanCardView.toggleCompletion")
+            }
+        }
     }
 
     private func moveToCategory(_ category: GoalCategory) {
         goal.move(to: category)
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "KanbanCardView.moveToCategory")
+        }
     }
 
     private func setPriority(_ priority: Priority) {
         goal.priority = priority
         goal.updatedAt = Date()
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "KanbanCardView.setPriority")
+        }
     }
 
     private func toggleFocus() {
         goal.isFocused.toggle()
         goal.updatedAt = Date()
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "KanbanCardView.toggleFocus")
+        }
     }
 
     private func archiveGoal() {
         goal.archive()
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "KanbanCardView.archiveGoal")
+        }
     }
 
     private func deleteGoal() {
         modelContext.delete(goal)
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.deleteFailed(NSError(domain: "WhatsNext", code: -1)), context: "KanbanCardView.deleteGoal")
+        }
     }
 }
 

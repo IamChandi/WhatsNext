@@ -1,4 +1,5 @@
 import SwiftUI
+import WhatsNextShared
 
 struct HelpView: View {
     @Environment(\.dismiss) private var dismiss

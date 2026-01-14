@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WhatsNextShared
 
 struct GoalRowView: View {
     @Environment(\.modelContext) private var modelContext
@@ -158,37 +159,49 @@ struct GoalRowView: View {
     }
 
     private func toggleCompletion() {
-        withAnimation(.easeInOut(duration: 0.2)) {
+        withAnimation(.easeInOut(duration: AppConstants.Animation.quick)) {
             goal.toggleCompletion()
-            try? modelContext.save()
+            if !modelContext.saveWithErrorHandling() {
+                ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalRowView.toggleCompletion")
+            }
         }
     }
 
     private func moveToCategory(_ category: GoalCategory) {
         goal.move(to: category)
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalRowView.moveToCategory")
+        }
     }
 
     private func setPriority(_ priority: Priority) {
         goal.priority = priority
         goal.updatedAt = Date()
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalRowView.setPriority")
+        }
     }
 
     private func toggleFocus() {
         goal.isFocused.toggle()
         goal.updatedAt = Date()
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalRowView.toggleFocus")
+        }
     }
 
     private func archiveGoal() {
         goal.archive()
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalRowView.archiveGoal")
+        }
     }
 
     private func deleteGoal() {
         modelContext.delete(goal)
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.deleteFailed(NSError(domain: "WhatsNext", code: -1)), context: "GoalRowView.deleteGoal")
+        }
     }
 }
 

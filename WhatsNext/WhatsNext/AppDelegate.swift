@@ -3,6 +3,8 @@ import AppKit
 import UserNotifications
 import SwiftData
 import Carbon
+import os.log
+import WhatsNextShared
 
 class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
 
@@ -88,8 +90,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let context = container.mainContext
         NotificationService.shared.moveUnfinishedDailyGoalsToTomorrow(context: context)
 
-        // Post notification to refresh UI
-        NotificationCenter.default.post(name: .goalsUpdated, object: nil)
+        // Notify UI to refresh using AppState
+        AppState.shared.notifyGoalsUpdated()
     }
 
     // MARK: - UNUserNotificationCenterDelegate
@@ -108,33 +110,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     ) async {
         let userInfo = response.notification.request.content.userInfo
 
-        if let goalIdString = userInfo["goalId"] as? String,
-           let goalId = UUID(uuidString: goalIdString) {
-            NotificationCenter.default.post(
-                name: .openGoal,
-                object: goalId
-            )
-        }
+        guard let goalIdString = userInfo["goalId"] as? String,
+              let goalId = UUID(uuidString: goalIdString) else { return }
 
-        switch response.actionIdentifier {
-        case "COMPLETE_ACTION":
-            if let goalIdString = userInfo["goalId"] as? String,
-               let goalId = UUID(uuidString: goalIdString) {
-                NotificationCenter.default.post(
-                    name: .completeGoal,
-                    object: goalId
-                )
+        await MainActor.run {
+            switch response.actionIdentifier {
+            case "COMPLETE_ACTION":
+                AppState.shared.completeGoal(id: goalId)
+            case "SNOOZE_ACTION":
+                AppState.shared.snoozeGoal(id: goalId)
+            default:
+                AppState.shared.openGoal(id: goalId)
             }
-        case "SNOOZE_ACTION":
-            if let goalIdString = userInfo["goalId"] as? String,
-               let goalId = UUID(uuidString: goalIdString) {
-                NotificationCenter.default.post(
-                    name: .snoozeGoal,
-                    object: goalId
-                )
-            }
-        default:
-            break
         }
     }
 }
@@ -155,7 +142,7 @@ class GlobalKeybindManager {
     func registerHotKey() {
         // defined keys: https://github.com/phracker/MacOSX-SDKs/blob/master/MacOSX10.6.sdk/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/HIToolbox.framework/Versions/A/Headers/Events.h
         
-        let hotKeyID = EventHotKeyID(signature: OSType(0x544F444F), id: 1) // Signature 'TODO', ID 1
+        let hotKeyID = EventHotKeyID(signature: OSType(0x544F444F), id: 1) // Signature 'TOD' (0x544F444F), ID 1
         
         // Command + Shift + Space
         // kVK_Space = 0x31
@@ -171,7 +158,7 @@ class GlobalKeybindManager {
         let status = RegisterEventHotKey(keyCode, modifierFlags, hotKeyID, GetApplicationEventTarget(), 0, &gMyHotKeyRef)
         
         if status != noErr {
-            print("Failed to register hotkey: \(status)")
+            Logger.app.error("Failed to register hotkey: \(status)")
             return
         }
         
@@ -194,8 +181,10 @@ class GlobalKeybindManager {
     private func handleHotKey() {
         NSApp.activate(ignoringOtherApps: true)
         
-        // Post notification to focus the input field
-        NotificationCenter.default.post(name: .focusQuickEntry, object: nil)
+        // Focus the quick entry field using AppState
+        Task { @MainActor in
+            AppState.shared.focusQuickEntryField()
+        }
         
         // Also ensure the main window comes to front if closed/minimized
         if let window = NSApp.windows.first {

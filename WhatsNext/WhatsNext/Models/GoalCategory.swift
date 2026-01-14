@@ -1,4 +1,5 @@
 import SwiftUI
+import WhatsNextShared
 
 /// Defines the primary time-based categories for organizing goals.
 enum GoalCategory: String, Codable, CaseIterable, Identifiable {

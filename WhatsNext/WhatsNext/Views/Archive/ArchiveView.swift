@@ -1,31 +1,29 @@
 import SwiftUI
 import SwiftData
+import os.log
+import WhatsNextShared
 
 struct ArchiveView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var selectedGoal: Goal?
 
-    @Query(
-        filter: #Predicate<Goal> { $0.statusRaw == "archived" },
-        sort: \Goal.updatedAt,
-        order: .reverse
-    )
-    private var archivedGoals: [Goal]
-
     @State private var searchText = ""
-
-    private var filteredGoals: [Goal] {
-        if searchText.isEmpty {
-            return archivedGoals
-        }
-        return archivedGoals.filter {
-            $0.title.localizedCaseInsensitiveContains(searchText)
+    @State private var dataService: GoalDataService?
+    @State private var filteredGoals: [Goal] = []
+    
+    private func updateArchivedGoals() {
+        guard let dataService = dataService else { return }
+        do {
+            filteredGoals = try dataService.fetchArchivedGoals(searchText: searchText)
+        } catch {
+            Logger.data.error("Failed to fetch archived goals: \(error.localizedDescription)")
+            ErrorHandler.shared.handle(.fetchFailed(error), context: "ArchiveView.updateArchivedGoals")
         }
     }
 
     var body: some View {
-        Group {
-            if archivedGoals.isEmpty {
+            Group {
+            if filteredGoals.isEmpty && searchText.isEmpty {
                 ContentUnavailableView {
                     Label("No Archived Goals", systemImage: "archivebox")
                 } description: {
@@ -53,9 +51,16 @@ struct ArchiveView: View {
             }
         }
         .navigationTitle("Archive")
+        .onAppear {
+            dataService = GoalDataService(modelContext: modelContext)
+            updateArchivedGoals()
+        }
+        .onChange(of: searchText) { _, _ in
+            updateArchivedGoals()
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                if !archivedGoals.isEmpty {
+                if !filteredGoals.isEmpty {
                     Menu {
                         Button(action: restoreAll) {
                             Label("Restore All", systemImage: "arrow.uturn.backward")
@@ -70,37 +75,58 @@ struct ArchiveView: View {
                 }
             }
         }
+        .withErrorHandling()
     }
 
     private func unarchiveGoal(_ goal: Goal) {
         goal.unarchive()
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "ArchiveView.unarchiveGoal")
+        } else {
+            updateArchivedGoals()
+        }
     }
 
     private func deleteGoal(_ goal: Goal) {
         modelContext.delete(goal)
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.deleteFailed(NSError(domain: "WhatsNext", code: -1)), context: "ArchiveView.deleteGoal")
+        } else {
+            updateArchivedGoals()
+        }
     }
 
     private func deleteGoals(at offsets: IndexSet) {
         for index in offsets {
             modelContext.delete(filteredGoals[index])
         }
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.deleteFailed(NSError(domain: "WhatsNext", code: -1)), context: "ArchiveView.deleteGoals")
+        } else {
+            updateArchivedGoals()
+        }
     }
 
     private func restoreAll() {
-        for goal in archivedGoals {
+        for goal in filteredGoals {
             goal.unarchive()
         }
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.saveFailed(NSError(domain: "WhatsNext", code: -1)), context: "ArchiveView.restoreAll")
+        } else {
+            updateArchivedGoals()
+        }
     }
 
     private func deleteAll() {
-        for goal in archivedGoals {
+        for goal in filteredGoals {
             modelContext.delete(goal)
         }
-        try? modelContext.save()
+        if !modelContext.saveWithErrorHandling() {
+            ErrorHandler.shared.handle(.deleteFailed(NSError(domain: "WhatsNext", code: -1)), context: "ArchiveView.deleteAll")
+        } else {
+            updateArchivedGoals()
+        }
     }
 }
 

@@ -1,6 +1,9 @@
 import Foundation
+import WhatsNextShared
 import SwiftUI
+import WhatsNextShared
 import SwiftData
+import WhatsNextShared
 
 @Model
 final class Tag {
