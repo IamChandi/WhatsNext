@@ -50,18 +50,22 @@ struct WhatsNextApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var sharedModelContainer: ModelContainer = {
+        // CRITICAL: Use WhatsNextShared models explicitly to ensure schema compatibility with iOS
         let schema = Schema([
-            Goal.self,
-            Subtask.self,
-            Tag.self,
-            GoalAlert.self,
-            RecurrenceRule.self,
-            HistoryEntry.self,
-            Note.self
+            WhatsNextShared.Goal.self,
+            WhatsNextShared.Subtask.self,
+            WhatsNextShared.Tag.self,
+            WhatsNextShared.GoalAlert.self,
+            WhatsNextShared.RecurrenceRule.self,
+            WhatsNextShared.HistoryEntry.self,
+            WhatsNextShared.Note.self
         ])
         
         // Try CloudKit first (since user has paid account)
         Logger.app.info("🔍 Attempting to create ModelContainer with CloudKit...")
+        Logger.network.info("📦 Using CloudKit container: \(AppConstants.CloudKit.containerIdentifier)")
+        Logger.network.info("📋 Schema models: Goal, Subtask, Tag, GoalAlert, RecurrenceRule, HistoryEntry, Note")
+        
         let cloudKitConfiguration = ModelConfiguration(
             schema: schema,
             cloudKitDatabase: .automatic
@@ -74,9 +78,15 @@ struct WhatsNextApp: App {
             )
             Logger.app.info("✅ ModelContainer created successfully with CloudKit")
             Logger.network.info("📱 CloudKit sync enabled - data will sync across devices")
+            Logger.network.info("💡 Make sure both macOS and iOS apps use the same iCloud account")
+            Logger.network.info("💡 Verify CloudKit container '\(AppConstants.CloudKit.containerIdentifier)' is configured in Apple Developer Portal")
             return container
         } catch let cloudKitError {
             Logger.error.error("❌ CloudKit failed: \(cloudKitError.localizedDescription)")
+            if let nsError = cloudKitError as NSError? {
+                Logger.error.error("   Domain: \(nsError.domain), Code: \(nsError.code)")
+                Logger.error.error("   UserInfo: \(nsError.userInfo)")
+            }
             Logger.app.info("⚠️ Falling back to local storage...")
             
             // Fallback to local storage if CloudKit fails

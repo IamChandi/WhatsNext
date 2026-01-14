@@ -18,6 +18,7 @@ public extension ModelContext {
     func saveWithErrorHandling() -> Bool {
         do {
             try save()
+            Logger.data.info("💾 ModelContext saved successfully - changes will sync to CloudKit")
             return true
         } catch {
             Logger.data.error("❌ ModelContext save failed: \(error.localizedDescription)")
